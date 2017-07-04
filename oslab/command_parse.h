@@ -23,21 +23,20 @@
 //todo 文件共享
 bool test_command(const char* command0, const char *command1);
 int parse_first_command(char* first_command);
-int parse_help_item(char* help_item);
-
+char* get_one_arg();
 
 void help();
-void ls(char* command);
-void create(char* command);
-void _delete(char* command);
-void open(char* command);
-void close(char* command);
-void read(char* command);
-void write(char* command);
-void login(char* command);
-void _register(char* command);
-void logout(char* command);
-void rm(char* command);
-void mv(char* command);
-void cp(char* command);
+void ls();
+void create();
+void _delete();
+void open();
+void close();
+void read();
+void write();
+void login();
+void _register();
+void logout();
+void rm();
+void mv();
+void cp();
 #endif //OSLAB_COMMAND_PARSE_H

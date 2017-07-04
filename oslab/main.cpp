@@ -13,9 +13,9 @@ int main() {
     //todo init or load filesystem
 	printf("--------------欢迎使用×××文件系统-----------------\n");
     printf("输入 help 或 命令  help 可获得提示\n");
-    printf(">");
     while (true){
         char command[100];
+        printf(">");
         gets(command);
         char* first_command;
         first_command = strtok(command, " ");
@@ -24,43 +24,43 @@ int main() {
                 help();
                 break;
             case LS:
-                ls(command);
+                ls();
                 break;
             case CREATE:
-                create(command);
+                create();
                 break;
             case DELETE:
-                _delete(command);
+                _delete();
                 break;
             case OPEN:
-                open(command);
+                open();
                 break;
             case CLOSE:
-                close(command);
+                close();
                 break;
             case READ:
-                read(command);
+                read();
                 break;
             case WRITE:
-                write(command);
+                write();
                 break;
             case LOGIN:
-                login(command);
+                login();
                 break;
             case REGISTER:
-                _register(command);
+                _register();
                 break;
             case LOGOUT:
-                logout(command);
+                logout();
                 break;
             case RM:
-                rm(command);
+                rm();
                 break;
             case MV:
-                mv(command);
+                mv();
                 break;
             case CP:
-                cp(command);
+                cp();
                 break;
             default:
                 printf("未知指令，请重新输入或者输入help获取帮助\n");
