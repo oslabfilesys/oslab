@@ -53,9 +53,6 @@ int main() {
             case LOGOUT:
                 logout();
                 break;
-            case RM:
-                rm();
-                break;
             case MV:
                 mv();
                 break;
@@ -64,7 +61,6 @@ int main() {
                 break;
             default:
                 printf("未知指令，请重新输入或者输入help获取帮助\n");
-                printf(">");
         }
 
     }

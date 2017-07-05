@@ -5,6 +5,8 @@
 #include <cstring>
 #include <cstdio>
 #include "command_parse.h"
+#include "user_reg_and_login.h"
+
 bool test_command(const char* command0, const char *command1){
     return strcmp(command0, command1)==0;
 }
@@ -49,40 +51,40 @@ char* get_one_arg(){
 
 
 void help() {
-    printf("欢迎使用本文件系统，系统命令如下：\n");
-    printf("login 用户名 密码：登入用户\n");
-    printf("register :注册（会提示输入信息）\n");
-    printf("logout 登出当前用户\n");
-    printf("ls [文件目录（相对目录或者绝对目录）]: 列出本目录或者指定目录的文件信息\n");
-    printf("create 文件名:创建指定文件\n");
-    printf("delete [参数列表] 文件夹/文件名： 删除指定文件夹或者文件\n");
-    printf("open 文件名： 打开指定文件\n");
-    printf("close 文件名：关闭指定文件\n");
-    printf("read 文件名：读取指定文件\n");
-    printf("write 文件名：写入指定文件\n");
-    printf("mv 源文件 目标地点：移动文件\n");
-    printf("cp 源文件 目标地点：复制文件\n");
-    printf("命令详情请输入对应命令+help\n");
+    printf("welcome to the file system，the command are here:\n");
+    printf("login username password：login user\n");
+    printf("register :register a new user\n");
+    printf("logout :logout current user\n");
+    printf("ls [directory]: list the files and directories\n");
+    printf("create filename: create the file\n");
+    printf("delete [args] directory/filename:  delete the directory or file\n");
+    printf("open filename： open the file\n");
+    printf("close filename: close file\n");
+    printf("read filename：read the file\n");
+    printf("write filename：write the file\n");
+    printf("mv source target：move the file\n");
+    printf("cp source target：copy the file\n");
+    printf("for details can input command+help\n");
 }
 
 void ls() {
     char *target_directory = get_one_arg();
     if (target_directory == nullptr){
-        printf("列出当前目录文件\n");
+        printf("list current directory\n");
     } else{
-        printf("列出目录 %s 的文件\n", target_directory);
+        printf("list directory %s 's files\n", target_directory);
     }
 }
 
 void create() {
     char *arg = get_one_arg();
     if (arg == nullptr){
-        printf("输入的指令有误， 请检查或者输入create help 获取帮助\n");
+        printf("there's something wrong,please check it or input create help to get help\n");
     } else if (test_command(arg, "help")){
-        printf("create 文件名:创建指定文件\n");
+        printf("create filename:create the file\n");
     } else{
         char* target_file = arg;
-        printf("尝试创建 %s 文件\n", target_file);
+        printf("try to create %s file\n", target_file);
 
     }
 }
@@ -91,13 +93,13 @@ void _delete() {
     char *arg0 = get_one_arg();
     char *arg1 = get_one_arg();
     if (arg0 == nullptr || (test_command(arg0, "all") && arg1 == nullptr))
-        printf("输入的指令有误， 请检查或者输入create help 获取帮助\n");
+        printf("there's something wrong,please check it or input delete help to get help\n");
     else if (test_command(arg0, "help")){
-        printf("delete [参数] 文件名或文件夹:删除指定文件或目录\n");
-        printf("参数：all 删除指定文件或者目录（无论里面是否有文件）");
+        printf("delete [args] directory/filename:  delete the directory or file\n");
+        printf("arg：all delete all files in the directory and the directory");
     } else if (test_command(arg0, "all")){
         char * target_file_or_directory = arg1;
-        printf("删除指定文件:%s \n", target_file_or_directory);
+        printf("delete:%s \n", target_file_or_directory);
     }
 
 }
@@ -105,12 +107,12 @@ void _delete() {
 void open() {
     char *arg = get_one_arg();
     if (arg == nullptr){
-        printf("输入的指令有误， 请检查或者输入open help 获取帮助\n");
+        printf("there's something wrong,please check it or input open help to get help\n");
     } else if (test_command(arg, "help")){
-        printf("open 文件名:打开指定文件\n");
+        printf("open filename:open the file\n");
     } else{
         char* target_file = arg;
-        printf("尝试打开 %s 文件\n", target_file);
+        printf("try to open the %s file\n", target_file);
 
     }
 }
@@ -118,12 +120,12 @@ void open() {
 void close() {
     char *arg = get_one_arg();
     if (arg == nullptr){
-        printf("输入的指令有误， 请检查或者输入close help 获取帮助\n");
+        printf("there's something wrong,please check it or input close help to get help\n");
     } else if (test_command(arg, "help")){
-        printf("close 文件名:打开指定文件\n");
+        printf("close filename:close the file\n");
     } else{
         char* target_file = arg;
-        printf("尝试关闭 %s 文件\n", target_file);
+        printf("try to close %s file\n", target_file);
 
     }
 }
@@ -131,12 +133,12 @@ void close() {
 void read() {
     char *arg = get_one_arg();
     if (arg == nullptr){
-        printf("输入的指令有误， 请检查或者输入read help 获取帮助\n");
+        printf("there's something wrong,please check it or input read help to get help\n");
     } else if (test_command(arg, "help")){
-        printf("read 文件名:读取指定文件\n");
+        printf("read filename:read the file\n");
     } else{
         char* target_file = arg;
-        printf("尝试读取 %s 文件\n", target_file);
+        printf("try to read the %s file\n", target_file);
 
     }
 }
@@ -144,12 +146,12 @@ void read() {
 void write() {
     char *arg = get_one_arg();
     if (arg == nullptr){
-        printf("输入的指令有误， 请检查或者输入write help 获取帮助\n");
+        printf("there's something wrong,please check it or input write help to get help\n");
     } else if (test_command(arg, "help")){
-        printf("write 文件名:写入指定文件\n");
+        printf("write filename:write file\n");
     } else{
         char* target_file = arg;
-        printf("尝试写入 %s 文件\n", target_file);
+        printf("try to write the %s file\n", target_file);
 
     }
 }
@@ -158,32 +160,58 @@ void login() {
     char *arg0 = get_one_arg();
     char *arg1 = get_one_arg();
     if (arg0 == nullptr  || (!test_command(arg0, "help") && arg1 == nullptr ))
-        printf("输入的指令有误， 请检查或者输入login help 获取帮助\n");
+        printf("there's something wrong,please check it or input login help to get help\n");
     else if (test_command(arg0, "help")){
-        printf("login [用户名] [密码]：登入用户\n");
+        printf("login username password：login the user\n");
     } else {
         char* username = arg0;
         char* password = arg1;
-        printf("尝试登入用户%s\n", username);
+        login_user(username, password);
     }
 }
 
 void _register() {
-
+    char* arg0 = get_one_arg();
+    if (arg0 != nullptr && test_command(arg0, "help")){
+        printf("register：register the user\n");
+    } else{
+        _register_user();
+    }
 }
 
 void logout() {
-
-}
-
-void rm() {
-
+    char* arg0 = get_one_arg();
+    if (test_command(arg0, "help")){
+        printf("logout：logout current user\n");
+    } else{
+        printf("try to logout user\n");
+    }
 }
 
 void mv() {
-
+    char *arg0 = get_one_arg();
+    char *arg1 = get_one_arg();
+    if (arg0 == nullptr  || (!test_command(arg0, "help") && arg1 == nullptr ))
+        printf("there's something wrong,please check it or input mv help to get help\n");
+    else if (test_command(arg0, "help")){
+        printf("mv source target：move the file\n");
+    } else {
+        char* source = arg0;
+        char* target = arg1;
+        printf("try to move the file %s\n", source);
+    }
 }
 
 void cp() {
-
+    char *arg0 = get_one_arg();
+    char *arg1 = get_one_arg();
+    if (arg0 == nullptr  || (!test_command(arg0, "help") && arg1 == nullptr ))
+        printf("there's something wrong,please check it or input cp help to get help\n");
+    else if (test_command(arg0, "help")){
+        printf("cp source target：copy the file\n");
+    } else {
+        char* source = arg0;
+        char* target = arg1;
+        printf("try to copy the file %s\n", source);
+    }
 }
