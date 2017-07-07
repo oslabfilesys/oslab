@@ -8,6 +8,7 @@
 #define FILENAME "user.dat"
 
 typedef struct {
+	int uid;
     char username[20];
     char password[20];
 }User;
