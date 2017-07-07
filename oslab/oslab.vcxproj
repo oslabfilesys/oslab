@@ -118,10 +118,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="源.cpp" />
+    <ClCompile Include="command_parse.cpp" />
+    <ClCompile Include="format.cpp" />
+    <ClCompile Include="igetput.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="user_reg_and_login.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="command_parse.h" />
     <ClInclude Include="FILESYS.h" />
+    <ClInclude Include="user_reg_and_login.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
