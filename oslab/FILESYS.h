@@ -112,3 +112,14 @@ struct user {
 	unsigned short u_gid;
 	unsigned short u_ofile[NOFILE];
 };
+
+
+extern struct hinode hinode[NHINO];
+extern struct dir dir;
+extern struct file sys_ofile[SYSOPENFILE];
+extern struct filsys filsys;
+extern struct pwd pwd[PWDNUM];
+extern struct user user[USERNUM];
+extern        FILE *fd;
+extern struct inode *cur_path_inode;
+extern int    user_id;

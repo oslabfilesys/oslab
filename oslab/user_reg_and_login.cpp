@@ -17,57 +17,84 @@ User* login_user(char *username, char *password) {
             free(user);
         }
     }
+	if (fp)
+	{
+		fclose(fp);
+	}
     return user;
 }
 
 void _register_user() {
     char username[20], password[20], password_1[20];
-    printf("please input your username\n>");
-    scanf("%s", username);
+    printf_s("please input your username\n>");
+    gets_s(username);
     if (exist_user(username)) {
-        printf("the user %s is already exist!", username);
+        printf_s("the user %s is already exist!\n", username);
     } else {
         printf("please input your password:\n>");
-        scanf("%s", password);
+        gets_s(password);
         printf("please input your password again:\n>");
-        scanf("%s", password_1);
+        gets_s(password_1);
         if (strcmp(password, password) != 0) {
             printf("password not match, please retry!\n");
             return;
         } else {
             User user;
-            strcpy(user.username, username);
-            strcpy(user.password, password);
+            strcpy_s(user.username, username);
+            strcpy_s(user.password, password);
             write_a_user_to_file(&user);
+			printf_s("reg success! now you can login!\n");
         }
     }
 }
 
 User* read_a_user_from_file(FILE *file){
-    User * user = (User*) malloc(sizeof(User));
-    fread(user, sizeof(User), 1, file);
+	User * user;
+	if (!feof(file))
+	{
+		user = (User*)malloc(sizeof(User));
+		fread(user, sizeof(User), 1, file);
+	}
+	else
+	{
+		user = nullptr;
+	}
+
     return user;
 
 }
 
 FILE* open_file_for_read(){
-    FILE *fp = nullptr;
-    if((fp = fopen(FILENAME, "rb")) == nullptr){
-        fp = fopen(FILENAME, "w");
+    FILE *fp;
+	fopen_s(&fp, FILENAME, "rb");
+    if(fp == nullptr){
+		fopen_s(&fp, FILENAME, "wb+");
     }
     return fp;
 }
 
 FILE* open_file_for_write(){
-    FILE *fp = nullptr;
-    fp = fopen(FILENAME, "ab+");
+    FILE *fp ;
+	if (fopen_s(&fp, FILENAME, "ab+") != 0) {
+		fopen_s(&fp, FILENAME, "w");
+	}
     return fp;
 }
 
 void write_a_user_to_file(User *user){
     FILE *fp = open_file_for_write();
-    fseek(fp, 0, SEEK_END);
+	User *temp;
+	int last_user_id = 1;
+	while ((temp = read_a_user_from_file(fp)) != nullptr) {
+		last_user_id = temp->uid;
+		delete temp;
+	}
+	user->uid = last_user_id;
     fwrite(user, sizeof(User), 1, fp);
+	if (fp)
+	{
+		fclose(fp);
+	}
 }
 
 bool verify_user(char *username, char *password, User *user) {
@@ -87,6 +114,10 @@ bool exist_user(char* username){
             free(user);
         }
     }
+	if (fp)
+	{
+		fclose(fp);
+	}
     return is_exist_user;
 }
 
