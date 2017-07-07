@@ -12,7 +12,7 @@
 #define NHINO       128
 #define USERNUM     10
 #define DINODESIZ   32
-#define DINODEBLK   32 //引导块
+#define DINODEBLK   32 //引导块大小
 #define FILEBLK     512
 #define NICFREE     50
 #define NICINOD     50
@@ -41,6 +41,7 @@
 #define FAPPEND     00004
 #define DISKFULL    65535
 #define SEEK_SET    0
+
 
 struct inode {
 	struct inode *i_forw;
