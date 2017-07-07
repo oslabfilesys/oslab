@@ -4,6 +4,8 @@
 #include "search_and_dir.h"
 #include"igetput.h"
 #include"ballocfre.h"
+#include"access.h"
+#include"iallfre.h"
 unsigned int namei(char *name) /* namei */
 
 {
@@ -33,7 +35,7 @@ unsigned int iname(char *name)	/* iname 搜索函数*/
 	}
 	else
 	{
-		strcpy(dir.direct[i].d_name,name);
+		strcpy_s(dir.direct[i].d_name,name);
 		dir.direct[i].d_ino = 1;
 		return i;
 	}
@@ -102,9 +104,9 @@ void mkdir(char *dirname)	/* mkdir 目录创建函数*/
 	dir.direct[dirpos].d_ino = inode->i_ino;
 	dir.size++;
 	/*	fill the new dir buf */
-	strcpy(buf[0].d_name,".");
+	strcpy_s(buf[0].d_name,".");
 	buf[0].d_ino = dirid;
-	strcpy(buf[1].d_name,"..");
+	strcpy_s(buf[1].d_name,"..");
 	buf[1].d_ino = cur_path_inode->i_ino;
 	buf[2].d_ino = 0;
 	block = balloc();

@@ -2,6 +2,10 @@
 #include "FILESYS.h"
 #include "open_and_close.h"
 #include"search_and_dir.h"
+#include"igetput.h"
+#include"ballocfre.h"
+#include"access.h"
+
 unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 {
 	unsigned int dinodeid;
