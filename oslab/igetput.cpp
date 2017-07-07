@@ -1,7 +1,9 @@
 /*获取释放i节点内容程序iget()/iput()*/
 #include <stdio.h>
 #include "FILESYS.h"
-#include"igetput.h"
+#include<malloc.h>
+#include"ballocfre.h"
+#include"iallfre.h"
 
 struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 {
@@ -9,7 +11,7 @@ struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 	long addr;
 	struct inode *temp, *newinode;
 	inodeid = dinodeid % NHINO;
-	if (hinode[inodeid].i_forw == NULL) existed = 0;
+	if (hinode[inodeid].i_forw == NULL) existed=0;
 	else
 	{
 		temp = hinode[inodeid].i_forw;
@@ -26,7 +28,7 @@ struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 				temp = temp->i_forw;
 		};
 	}
-	/*	1. calculate the addr of the dinode in the file sys column */
+	/*	1. calcu late the addr of the dinode in the file sys column */
 	addr = DINODESTART + dinodeid * DINODESIZ;
 	/*	2. malloc the new mode */
 	newinode = (struct inode *) malloc(sizeof(struct inode));
@@ -42,19 +44,21 @@ struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 	newinode->i_count = 1;
 	newinode->i_flag = 0;    /* flag for not update */
 	newinode->i_ino = dinodeid;
+	newinode->di_size = 3 * (DIRSIZ + 2);
+	if (dinodeid == 3)newinode->di_size = BLOCKSIZ;
 	return newinode;
 }
 
-iput(pinode) /* iput ( ) */
-struct inode * pinode;
+int iput(struct inode * pinode) /* iput ( ) */
 {
 	long addr;
 	unsigned int block_num;
 	int i;
+
 	if (pinode->i_count>1)
 	{
 		pinode->i_count--;
-		return;
+		return 0;
 	}
 	else
 	{
@@ -69,9 +73,9 @@ struct inode * pinode;
 		{
 			/*	rm the mode & the block of the file in the disk */
 			block_num = pinode->di_size / BLOCKSIZ;
-			for (i = 0;i<block_num; i++)
+			for (i = 0;i<(int)block_num;i++)
 			{
-				balloc(pinode->di_addr[i]);
+				bfree(pinode->di_addr[i]);
 
 			}
 			ifree(pinode->i_ino);
@@ -84,6 +88,6 @@ struct inode * pinode;
 			pinode->i_forw->i_back = pinode->i_back;
 			pinode->i_back->i_forw = pinode->i_forw;
 		};
-		free(pinode);
+		ifree(pinode->i_ino);
 	};
 }

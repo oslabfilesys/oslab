@@ -1,4 +1,6 @@
 #include "creat_and_delete.h"
+#include"igetput.h"
+
 #include"creat_and_delete.h"
 #include"search_and_dir.h"
 int create_file(unsigned int user_id, char *filename,unsigned short mode)

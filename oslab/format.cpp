@@ -2,19 +2,24 @@
 #include<stdlib.h>
 #include"FILESYS.h"
 #include "malloc.h"
+#include"igetput.h"
+#include<string.h>
 
 void format()
 {
 	struct inode * inode;
 	struct direct dir_buf[BLOCKSIZ / (DIRSIZ + 2)];
+	struct pwd passwd[BLOCKSIZ / (PWDSIZ + 4)];
 	struct filsys filsys;
 	unsigned int block_buf[BLOCKSIZ / sizeof(int)];
 	char * buf;
-	int i, j;
+	char * empty;
+	int i,j,k;
 	/*	creat the file system file */
-	FILE *fd = fopen("filesystem", "r+w+b");
+	FILE *fd;
+  	fd = fopen("filesystem", "w+b");
 	buf = (char *)malloc((DINODEBLK + FILEBLK + 2) * BLOCKSIZ * sizeof(char));
-	if (buf == NULL)
+	if (fd == NULL)
 	{
 		printf("\nfile system file creat failed! \n");
 		exit (0);

@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "search_and_dir.h"
-unsigned int namei(char *name) /* namei ËÑË÷º¯Êý */
+#include"igetput.h"
+#include"ballocfre.h"
+unsigned int namei(char *name) /* namei */
+
 {
 	int i, notfound = 1;
 	for (i = 0; ((i<dir.size) && (notfound)); i++)
@@ -13,7 +16,7 @@ unsigned int namei(char *name) /* namei ËÑË÷º¯Êý */
 	return 0;   /* notfind */
 }
 
-unsigned int iname(char *name)	/* iname ËÑË÷º¯Êý*/
+unsigned int iname(char *name)	/* iname æœç´¢å‡½æ•°*/
 {
 	int i, notfound = 1;
 	for (i = 0; ((i<DIRNUM) && (notfound)); i++)
@@ -35,7 +38,7 @@ unsigned int iname(char *name)	/* iname ËÑË÷º¯Êý*/
 		return i;
 	}
 }
-void _dir()	/* _dir ÏÔÊ¾ÁÐ±íº¯Êý */
+void _dir()	/* _dir æ˜¾ç¤ºåˆ—è¡¨å‡½æ•° */
 {
 	unsigned short di_mode;
 	int i, j,k,one;
@@ -76,7 +79,7 @@ void _dir()	/* _dir ÏÔÊ¾ÁÐ±íº¯Êý */
 	}
 }
 
-void mkdir(char *dirname)	/* mkdir Ä¿Â¼´´½¨º¯Êý*/
+void mkdir(char *dirname)	/* mkdir ç›®å½•åˆ›å»ºå‡½æ•°*/
 {
 	int dirid, dirpos;
 	struct inode * inode;
@@ -116,7 +119,7 @@ void mkdir(char *dirname)	/* mkdir Ä¿Â¼´´½¨º¯Êý*/
 	iput(inode);
 	return;
 }
-void chdir(char *dirname) /* chdir ¸Ä±äµ±Ç°Ä¿Â¼ÓÃº¯Êý */
+void chdir(char *dirname) /* chdir æ”¹å˜å½“å‰ç›®å½•ç”¨å‡½æ•° */
 {
 	unsigned int dirid;
 	struct inode * inode;

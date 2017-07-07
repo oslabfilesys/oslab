@@ -117,6 +117,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ballocfre.h" />
+    <ClInclude Include="iallfre.h" />
+    <ClInclude Include="igetput.h" />
     <ClInclude Include="command_parse.h" />
     <ClInclude Include="creat_and_delete.h" />
     <ClInclude Include="FILESYS.h" />
@@ -126,13 +129,18 @@
     <ClInclude Include="user_reg_and_login.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ballocfre.cpp" />
     <ClCompile Include="command_parse.cpp" />
     <ClCompile Include="creat_and_delete.cpp" />
+    <ClCompile Include="iallfre.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="open_and_close.cpp" />
     <ClCompile Include="read_and_write.cpp" />
     <ClCompile Include="search_and_dir.cpp" />
     <ClCompile Include="user_reg_and_login.cpp" />
+    <ClCompile Include="format.cpp" />
+    <ClCompile Include="igetput.cpp" />
+
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
