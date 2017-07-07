@@ -117,6 +117,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+
     <ClInclude Include="command_parse.h" />
     <ClInclude Include="creat_and_delete.h" />
     <ClInclude Include="FILESYS.h" />
@@ -131,6 +132,7 @@
     <ClCompile Include="open_and_close.cpp" />
     <ClCompile Include="read_and_write.cpp" />
     <ClCompile Include="search_and_dir.cpp" />
+
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

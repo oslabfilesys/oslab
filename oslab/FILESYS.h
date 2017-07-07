@@ -12,7 +12,7 @@
 #define NHINO       128
 #define USERNUM     10
 #define DINODESIZ   32
-#define DINODEBLK   32 //引导块
+#define DINODEBLK   32 //引导块大小
 #define FILEBLK     512
 #define NICFREE     50
 #define NICINOD     50
@@ -41,6 +41,7 @@
 #define FAPPEND     00004
 #define DISKFULL    65535
 #define SEEK_SET    0
+
 
 struct inode {
 	struct inode *i_forw;
@@ -111,3 +112,14 @@ struct user {
 	unsigned short u_gid;
 	unsigned short u_ofile[NOFILE];
 };
+
+
+extern struct hinode hinode[NHINO];
+extern struct dir dir;
+extern struct file sys_ofile[SYSOPENFILE];
+extern struct filsys filsys;
+extern struct pwd pwd[PWDNUM];
+extern struct user user[USERNUM];
+extern        FILE *fd;
+extern struct inode *cur_path_inode;
+extern int    user_id;

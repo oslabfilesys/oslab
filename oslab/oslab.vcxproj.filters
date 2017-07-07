@@ -15,12 +15,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+
     <ClInclude Include="FILESYS.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="command_parse.h">
       <Filter>头文件</Filter>
     </ClInclude>
+
     <ClInclude Include="open_and_close.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -53,5 +55,10 @@
     <ClCompile Include="read_and_write.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+
+    <ClInclude Include="user_reg_and_login.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+
   </ItemGroup>
 </Project>
