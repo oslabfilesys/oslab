@@ -3,6 +3,9 @@
 
 #include"creat_and_delete.h"
 #include"search_and_dir.h"
+#include"ballocfre.h"
+#include"iallfre.h"
+#include"access.h"
 int create_file(unsigned int user_id, char *filename,unsigned short mode)
 {
 	unsigned int di_ith, di_ino;
@@ -16,7 +19,7 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)
 		{
 			iput(inode);
 			printf("\ncreate access not allowed");
-			return;
+			return 0;
 		}
 		/* free all the block of the old file */
 		for (i = 0; i<inode->di_size / BLOCKSIZ + 1; i++)
@@ -90,7 +93,7 @@ int delete_file (char *filename)
 	i++;
 	while (dir.direct[i].d_ino != 0)
 	{
-		strcpy(dir.direct[i - 1].d_name, dir.direct[i].d_name);
+		strcpy_s(dir.direct[i - 1].d_name, dir.direct[i].d_name);
 		dir.direct[i - 1].d_ino = dir.direct[i].d_ino;
 		i++;
 	}
