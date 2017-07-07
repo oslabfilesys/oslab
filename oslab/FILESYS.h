@@ -68,7 +68,7 @@ struct dinode {
 
 struct direct {
 	char d_name[DIRSIZ];
-	unsigned int d_ino;
+	unsigned int d_ino;//目录项结构
 };
 
 struct filsys {
