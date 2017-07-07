@@ -15,23 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-
-
     <ClCompile Include="format.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="igetput.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-
-
     <ClInclude Include="FILESYS.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="command_parse.h">
       <Filter>头文件</Filter>
     </ClInclude>
-
     <ClInclude Include="open_and_close.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -44,7 +39,15 @@
     <ClInclude Include="search_and_dir.h">
       <Filter>头文件</Filter>
     </ClInclude>
-
+    <ClCompile Include="user_reg_and_login.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ballocfre.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="iallfre.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="command_parse.cpp">
@@ -65,12 +68,19 @@
     <ClCompile Include="read_and_write.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-
     <ClInclude Include="user_reg_and_login.h">
       <Filter>头文件</Filter>
     </ClInclude>
-
-
-
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ballocfre.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="igetput.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="iallfre.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

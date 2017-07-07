@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "creat_and_delete.h"
+#include"search_and_dir.h"
+#include"igetput.h"
 void create_file(unsigned int user_id, char *filename,unsigned short mode)
 {
 	unsigned int di_ith, di_ino;

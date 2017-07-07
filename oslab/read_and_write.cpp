@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "read_and_write.h"
+#include"ballocfre.h"
 unsigned int read_file(int fd1,char *buf,unsigned int size)
 {
 	unsigned long off;

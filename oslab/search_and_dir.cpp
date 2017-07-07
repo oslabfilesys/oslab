@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "search_and_dir.h"
+#include"igetput.h"
+#include"ballocfre.h"
 unsigned int namei(char *name) /* namei */
 {
 	int i, notfound = 1;
