@@ -1,6 +1,6 @@
 #pragma once
 #include <stdio.h>
-
+#define _CRT_SECURE_NO_WARNINGS
 #define BLOCKSIZ    512
 #define SYSOPENFILE 40
 #define DIRNUM      128
