@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include "FILESYS.h"
 #include "creat_and_delete.h"
-void create_file(unsigned int user_id, char *filename,unsigned short mode)
+#include"creat_and_delete.h"
+#include"search_and_dir.h"
+int create_file(unsigned int user_id, char *filename,unsigned short mode)
 {
 	unsigned int di_ith, di_ino;
 	struct inode * inode;
@@ -71,7 +71,8 @@ void create_file(unsigned int user_id, char *filename,unsigned short mode)
 		return j;
 	}
 }
-void delete_file (char *filename)
+
+int delete_file (char *filename)
 {
 	unsigned int dinodeid,i;
 	struct inode *inode;
