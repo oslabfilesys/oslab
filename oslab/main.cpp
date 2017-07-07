@@ -11,12 +11,12 @@
 
 int main() {
     //todo init or load filesystem
-	printf("--------------欢迎使用×××文件系统-----------------\n");
-    printf("输入 help 或 命令  help 可获得提示\n");
+	printf("--------------welcome to XXX file system -----------------\n");
+    printf("printf help or commend  help available\n");
     while (true){
         char command[100];
         printf(">");
-        gets(command);
+        gets_s(command);
         char* first_command;
         first_command = strtok(command, " ");
         switch (parse_first_command(first_command)){
