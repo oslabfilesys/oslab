@@ -21,6 +21,7 @@ int user_id;
 
 int main() {
     //todo init or load filesystem
+
 	printf("--------------welcome to xxx file system-----------------\n");
     printf("input help or command  help can get help\n");
     while (true){
