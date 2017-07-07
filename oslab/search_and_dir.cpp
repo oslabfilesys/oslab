@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "search_and_dir.h"
-unsigned int namei(char *name) /* namei */
+unsigned int namei(char *name) /* namei 搜索函数 */
 {
 	int i, notfound = 1;
 	for (i = 0; ((i<dir.size) && (notfound)); i++)
@@ -13,7 +13,7 @@ unsigned int namei(char *name) /* namei */
 	return 0;   /* notfind */
 }
 
-unsigned int iname(char *name)	/* iname */
+unsigned int iname(char *name)	/* iname 搜索函数*/
 {
 	int i, notfound = 1;
 	for (i = 0; ((i<DIRNUM) && (notfound)); i++)
@@ -35,7 +35,7 @@ unsigned int iname(char *name)	/* iname */
 		return i;
 	}
 }
-void _dir()	/* _dir */
+void _dir()	/* _dir 显示列表函数 */
 {
 	unsigned short di_mode;
 	int i, j,k,one;
@@ -76,7 +76,7 @@ void _dir()	/* _dir */
 	}
 }
 
-void mkdir(char *dirname)	/* mkdir */
+void mkdir(char *dirname)	/* mkdir 目录创建函数*/
 {
 	int dirid, dirpos;
 	struct inode * inode;
@@ -116,7 +116,7 @@ void mkdir(char *dirname)	/* mkdir */
 	iput(inode);
 	return;
 }
-void chdir(char *dirname) /* chdir */
+void chdir(char *dirname) /* chdir 改变当前目录用函数 */
 {
 	unsigned int dirid;
 	struct inode * inode;
