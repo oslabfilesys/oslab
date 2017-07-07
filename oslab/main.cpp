@@ -3,11 +3,8 @@
 #include"FILESYS.h"
 #include "command_parse.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
 
 extern User current_user;
-
 struct hinode hinode[NHINO];
 struct dir dir;
 struct file sys_ofile[SYSOPENFILE];
@@ -16,11 +13,12 @@ struct pwd pwd[PWDNUM];
 struct user user[USERNUM];
 FILE * fd;
 struct inode * cur_path_inode;
-int user_id;
+int user_id, file_block;
 
 
 int main() {
     //todo init or load filesystem
+
 
 	printf("--------------welcome to xxx file system-----------------\n");
     printf("input help or command  help can get help\n");
