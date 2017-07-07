@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "read_and_write.h"
-unsigned int read_file(int fd1,char *buf,unsigned int size)
+unsigned int read_file(int fd1, char *buf, unsigned int size)
 {
 	unsigned long off;
 	int block, block_off, i, j;

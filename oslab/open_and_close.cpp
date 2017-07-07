@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "FILESYS.h"
 #include "open_and_close.h"
+#include"search_and_dir.h"
 unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 {
 	unsigned int dinodeid;
