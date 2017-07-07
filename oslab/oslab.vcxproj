@@ -118,6 +118,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
 
+
+
+    <ClInclude Include="user_reg_and_login.h" />
     <ClInclude Include="command_parse.h" />
     <ClInclude Include="creat_and_delete.h" />
     <ClInclude Include="FILESYS.h" />
@@ -132,6 +135,10 @@
     <ClCompile Include="open_and_close.cpp" />
     <ClCompile Include="read_and_write.cpp" />
     <ClCompile Include="search_and_dir.cpp" />
+    <ClCompile Include="user_reg_and_login.cpp" />
+    <ClCompile Include="format.cpp" />
+    <ClCompile Include="igetput.cpp" />
+
 
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
