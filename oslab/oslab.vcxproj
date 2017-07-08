@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClInclude Include="access.h" />
     <ClInclude Include="ballocfre.h" />
+    <ClInclude Include="format.h" />
     <ClInclude Include="iallfre.h" />
     <ClInclude Include="igetput.h" />
     <ClInclude Include="command_parse.h" />
