@@ -75,30 +75,38 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)
 		sys_ofile[i].f_inode = inode;
 		return j;
 	}
-}
-
-int delete_file (char *filename)
-{
-	unsigned int dinodeid,i;
-	struct inode *inode;
-	dinodeid = namei(filename);
-	if (dinodeid != 0)
-		inode = iget(dinodeid);
-	inode->di_number--;
-	for (i = 0; i < dir.size; i++)
-	{
-		if (dir.direct[i].d_ino == dinodeid)
-			break;
-	}
-	i++;
-	while (dir.direct[i].d_ino != 0)
-	{
-		strcpy_s(dir.direct[i - 1].d_name, dir.direct[i].d_name);
-		dir.direct[i - 1].d_ino = dir.direct[i].d_ino;
-		i++;
-	}
-	dir.direct[i - 1].d_ino = 0;
-	dir.size = i - 1;
-	iput(inode);
-	printf("\ndir.size=%d\n", dir.size);
 }
+
+void delete_file ( char * filename )
+{
+    unsigned int dinodeid, i;
+    struct inode *inode;
+    dinodeid = namei ( filename );
+    if ( dinodeid != 0 )
+        inode = iget ( dinodeid );
+    else
+    {
+        printf ( "file not exist!\n" );
+        return;
+    }
+    inode->di_number--;
+    for ( i = 0; i < dir.size; i++ )
+    {
+        if ( dir.direct [i].d_ino == dinodeid )
+            break;
+    }
+    i++;
+    while ( dir.direct [i].d_ino != 0 )
+    {
+        strcpy_s ( dir.direct [i - 1].d_name, dir.direct [i].d_name );
+        dir.direct [i - 1].d_ino = dir.direct [i].d_ino;
+        i++;
+    }
+    dir.direct [i - 1].d_ino = 0;
+    dir.size = i - 1;
+    iput ( inode );
+    printf ( "\ndir.size=%d\n", dir.size );
+
+}
+
+
