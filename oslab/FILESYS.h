@@ -13,8 +13,8 @@
 #define USERNUM     10
 #define DINODESIZ   32
 #define DINODEBLK   32 //引导块大小
-#define FILEBLK     512
-#define NICFREE     50
+#define FILEBLK     512//系统允许最多块数	
+#define NICFREE     50//每个块大小
 #define NICINOD     50
 #define DINODESTART 2*BLOCKSIZ
 #define DATASTART   (2+DINODEBLK)*BLOCKSIZ
