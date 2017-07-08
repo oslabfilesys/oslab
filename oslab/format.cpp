@@ -11,7 +11,6 @@ void format()
 	char * empty;
 	int i,j,k;
 	/*	creat the file system file */
-	FILE *fd;
     fopen_s ( &fd, "filesystem", "wb+" );
 	buf = (char *)malloc((DINODEBLK + FILEBLK + 2) * BLOCKSIZ * sizeof(char));
 	if (fd == NULL)
@@ -20,9 +19,18 @@ void format()
 		exit (0);
 	}
 	fseek(fd, 0, SEEK_SET);
-	fwrite(buf, 1, (DINODEBLK + FILEBLK + 2) * BLOCKSIZ * sizeof(char), fd);
+	fwrite(buf, ( DINODEBLK + FILEBLK + 2 ) * BLOCKSIZ * sizeof ( char ), 1, fd);
 	/*0.initialize the passwd */
-//
+    passwd [0].p_uid = 2116; passwd [0].p_gid = 03;
+    strcpy_s ( passwd [0].password, "dddd" );
+    passwd [1].p_uid = 2117; passwd [1].p_gid = 03;
+    strcpy_s ( passwd [1].password, "bbbb" );
+    passwd [2].p_uid = 2118; passwd [2].p_gid = 04;
+    strcpy_s ( passwd [2].password, "abcd" );
+    passwd [3].p_uid = 2119; passwd [3].p_gid = 04;
+    strcpy_s ( passwd [3].password, "cccc" );
+    passwd [4].p_uid = 2220; passwd [4].p_gid = 05;
+    strcpy_s ( passwd [4].password, "eeee" );
 	/*	1.creat the main directory and its sub dir etc and the file password */
 	inode = iget(0);	/* 0 empty dinode id */
 	inode->di_mode = DIEMPTY;
@@ -39,7 +47,7 @@ void format()
 	strcpy_s(dir_buf[2].d_name, "etc");
 	dir_buf[2].d_ino = 2;
 	fseek(fd, DATASTART, SEEK_SET);
-	fwrite(dir_buf, 1, 3 * (DIRSIZ + 2), fd);
+	fwrite(dir_buf, 3 * ( DIRSIZ + 2 ), 1, fd);
 	iput(inode);
 	inode = iget(2);/* 2 etc dir id */
 	inode->di_number = 1;
@@ -53,7 +61,7 @@ void format()
 	strcpy_s(dir_buf[2].d_name, "password");
 	dir_buf[2].d_ino = 3;
 	fseek(fd, DATASTART + BLOCKSIZ * 1, SEEK_SET);
-	fwrite(dir_buf, 1, 3 * (DIRSIZ + 2), fd);
+	fwrite(dir_buf, 3 * ( DIRSIZ + 2 ), 1, fd);
 	iput(inode);
 	inode = iget(3);    /* 3 password id */
 	inode->di_number = 1;
@@ -67,7 +75,7 @@ void format()
 		strcpy_s(passwd[i].password, "	");
 	}
 	fseek(fd, DATASTART + 2 * BLOCKSIZ, SEEK_SET);
-	fwrite(passwd, 1, BLOCKSIZ, fd);
+	fwrite(passwd, BLOCKSIZ, 1, fd);
 	iput(inode);
 	/*	2. initialize the superblock */
 	filsys.s_isize = DINODEBLK;
@@ -86,7 +94,7 @@ void format()
 	for (i = 0;i<NICFREE - 1;i++)
 		block_buf[NICFREE - 2 - i] = FILEBLK - i;
 	fseek(fd, DATASTART + BLOCKSIZ * (FILEBLK - NICFREE - 1), SEEK_SET);
-	fwrite(block_buf, 1, BLOCKSIZ, fd);
+	fwrite(block_buf, BLOCKSIZ, 1, fd);
 	for (i = FILEBLK - NICFREE - 1; i>2; i -= NICFREE)
 	{
 		for (j = 0;j<NICFREE;j++)
@@ -105,28 +113,24 @@ void format()
 	filsys.s_pfree = NICFREE - 1-j+3;
 	filsys.s_pinode = 0;
 	fseek(fd, BLOCKSIZ, SEEK_SET);
-	fwrite(&filsys, 1, sizeof(filsys), fd);
-	fseek(fd, BLOCKSIZ, SEEK_SET);
-	fread(&filsys.s_isize, 1, sizeof(filsys), fd);
+
+	fwrite(&filsys, sizeof ( struct filsys ), 1, fd);
+    fclose ( fd );
+
 }
 
 void install ( )
 {
+    fclose ( fd );
     int i, j;
-    /*0.open the file column */
-    fd = fopen ( "filesystem", "w+r+b" );
-    if ( fd == NULL )
-    {
-        printf ( "\nfilesys can not be loaded\n" );
-        exit ( 0 );
-    }
+    fopen_s ( &fd, "filesystem", "rb+");
     /*	1. read the filsys from the superblock */
     fseek ( fd, BLOCKSIZ, SEEK_SET );
-    fread ( &filsys, 1, sizeof ( struct filsys ), fd );
+    fread ( &file_system, sizeof ( struct filsys ), 1, fd );
     /*	2. initialize the mode hash chain */
     for ( i = 0; i<NHINO; i++ )
     {
-        hinode [i].i_forw = NULL;
+        h_inode [i].i_forw = NULL;
     }
     /*	3. initjalize the sys-ofile */
     for ( i = 0; i<SYSOPENFILE; i++ )
@@ -146,17 +150,17 @@ void install ( )
     }
     /* 5. read the main directory to initialize the dir */
     cur_path_inode = iget ( 1 );
-    dir.size = cur_path_inode->di_size / ( DIRSIZ + 2 );
+    directory.size = cur_path_inode->di_size / ( DIRSIZ + 2 );
     for ( i = 0; i<DIRNUM; i++ )
     {
-        strcpy ( dir.direct [i].d_name, "                 " );
-        dir.direct [i].d_ino = 0;
+        strcpy_s ( directory.direct [i].d_name, "    " );
+        directory.direct [i].d_ino = 0;
     }
-    for ( i = 0; i<dir.size / ( BLOCKSIZ / ( DIRSIZ + 2 ) ); i++ )
+    for ( i = 0; i<directory.size / ( BLOCKSIZ / ( DIRSIZ + 2 ) ); i++ )
     {
         fseek ( fd, DATASTART + BLOCKSIZ * cur_path_inode->di_addr [i], SEEK_SET );
-        fread ( &dir.direct [( BLOCKSIZ / ( DIRSIZ + 2 ) ) * i], 1, BLOCKSIZ, fd );
+        fread ( &directory.direct [( BLOCKSIZ / ( DIRSIZ + 2 ) ) * i], 1, BLOCKSIZ, fd );
     }
     fseek ( fd, DATASTART + BLOCKSIZ * cur_path_inode->di_addr [i], SEEK_SET );
-    fread ( &dir.direct [( BLOCKSIZ ) / ( DIRSIZ + 2 ) * i], 1, cur_path_inode->di_size % BLOCKSIZ, fd );
+    fread ( &directory.direct [( BLOCKSIZ ) / ( DIRSIZ + 2 ) * i], 1, cur_path_inode->di_size % BLOCKSIZ, fd );
 }

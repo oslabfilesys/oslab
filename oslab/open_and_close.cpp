@@ -59,12 +59,13 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 		inode->di_size = 0;
 	}
 	return j;
-}
-void close_file(unsigned int user_id, unsigned short cfd)
+}
+void close_file ( unsigned int user_id, unsigned short cfd )
 {
-	struct inode *inode;
-	inode = sys_ofile[user[user_id].u_ofile[cfd]].f_inode;
-	iput(inode);
-	sys_ofile[user[user_id].u_ofile[cfd]].f_count--;
-	user[user_id].u_ofile[cfd] = SYSOPENFILE + 1;
-}
+    struct inode *inode;
+    inode = sys_ofile [user [user_id].u_ofile [cfd]].f_inode;
+    iput ( inode );
+    sys_ofile [user [user_id].u_ofile [cfd]].f_count--;
+    user [user_id].u_ofile [cfd] = SYSOPENFILE + 1;
+}
+
