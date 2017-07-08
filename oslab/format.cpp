@@ -118,11 +118,12 @@ void format()
 
 void install ( )
 {
+    fclose ( fd );
     int i, j;
-
+    fopen_s ( &fd, "filesystem", "rb+");
     /*	1. read the filsys from the superblock */
     fseek ( fd, BLOCKSIZ, SEEK_SET );
-    fread ( &filsys, sizeof ( struct filsys ), 1, fd );
+    fread ( &file_system, sizeof ( struct filsys ), 1, fd );
     /*	2. initialize the mode hash chain */
     for ( i = 0; i<NHINO; i++ )
     {
@@ -146,18 +147,18 @@ void install ( )
     }
     /* 5. read the main directory to initialize the dir */
     cur_path_inode = iget ( 1 );
-    dir.size = cur_path_inode->di_size / ( DIRSIZ + 2 );
+    directory.size = cur_path_inode->di_size / ( DIRSIZ + 2 );
     for ( i = 0; i<DIRNUM; i++ )
     {
-        strcpy_s ( dir.direct [i].d_name, "                 " );
-        dir.direct [i].d_ino = 0;
+        strcpy_s ( directory.direct [i].d_name, "                 " );
+        directory.direct [i].d_ino = 0;
     }
-    for ( i = 0; i<dir.size / ( BLOCKSIZ / ( DIRSIZ + 2 ) ); i++ )
+    for ( i = 0; i<directory.size / ( BLOCKSIZ / ( DIRSIZ + 2 ) ); i++ )
     {
         fseek ( fd, DATASTART + BLOCKSIZ * cur_path_inode->di_addr [i], SEEK_SET );
-        fread ( &dir.direct [( BLOCKSIZ / ( DIRSIZ + 2 ) ) * i], 1, BLOCKSIZ, fd );
+        fread ( &directory.direct [( BLOCKSIZ / ( DIRSIZ + 2 ) ) * i], 1, BLOCKSIZ, fd );
     }
     fseek ( fd, DATASTART + BLOCKSIZ * cur_path_inode->di_addr [i], SEEK_SET );
-    fread ( &dir.direct [( BLOCKSIZ ) / ( DIRSIZ + 2 ) * i], 1, cur_path_inode->di_size % BLOCKSIZ, fd );
+    fread ( &directory.direct [( BLOCKSIZ ) / ( DIRSIZ + 2 ) * i], 1, cur_path_inode->di_size % BLOCKSIZ, fd );
     fclose ( fd );
 }

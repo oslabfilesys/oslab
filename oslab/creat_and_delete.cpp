@@ -50,9 +50,9 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)
 	{
 		inode = ialloc();
 		di_ith = iname(filename);
-		dir.size++;
-		dir.direct[di_ith].d_ino = inode->i_ino;
-		dir.direct[di_ith + 1].d_ino = 0;
+        directory.size++;
+        directory.direct[di_ith].d_ino = inode->i_ino;
+        directory.direct[di_ith + 1].d_ino = 0;
 		inode->di_mode = user[user_id].u_default_mode | DIFILE;
 		inode->di_uid = user[user_id].u_uid;
 		inode->di_gid = user[user_id].u_gid;
@@ -90,22 +90,22 @@ void delete_file ( char * filename )
         return;
     }
     inode->di_number--;
-    for ( i = 0; i < dir.size; i++ )
+    for ( i = 0; i < directory.size; i++ )
     {
-        if ( dir.direct [i].d_ino == dinodeid )
+        if ( directory.direct [i].d_ino == dinodeid )
             break;
     }
     i++;
-    while ( dir.direct [i].d_ino != 0 )
+    while ( directory.direct [i].d_ino != 0 )
     {
-        strcpy_s ( dir.direct [i - 1].d_name, dir.direct [i].d_name );
-        dir.direct [i - 1].d_ino = dir.direct [i].d_ino;
+        strcpy_s ( directory.direct [i - 1].d_name, directory.direct [i].d_name );
+        directory.direct [i - 1].d_ino = directory.direct [i].d_ino;
         i++;
     }
-    dir.direct [i - 1].d_ino = 0;
-    dir.size = i - 1;
+    directory.direct [i - 1].d_ino = 0;
+    directory.size = i - 1;
     iput ( inode );
-    printf ( "\ndir.size=%d\n", dir.size );
+    printf ( "\ndir.size=%d\n", directory.size );
 
 }
 

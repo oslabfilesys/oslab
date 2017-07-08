@@ -115,10 +115,10 @@ struct user {
 
 
 extern struct hinode h_inode [NHINO];
-extern struct dir dir;
+extern struct dir directory;
 extern struct file sys_ofile[SYSOPENFILE];
-extern struct filsys filsys;
-extern struct pwd pwd[PWDNUM];
+extern struct filsys file_system;
+extern struct pwd _pwd [PWDNUM];
 extern struct user user[USERNUM];
 extern        FILE *fd;
 extern struct inode *cur_path_inode;
