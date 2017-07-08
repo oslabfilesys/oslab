@@ -101,19 +101,22 @@ void format()
 		{
 			block_buf[j] = i - j;
 		}
+		block_buf[j] = 50;
 		fseek(fd, DATASTART + BLOCKSIZ * (i - 1), SEEK_SET);
 		fwrite(block_buf, 1, BLOCKSIZ, fd);
 	}
-	j = 1;
-	for (i = i; i>2;i--)
+	j = i + NICFREE;
+	for (i = j; i>2;i--)
 	{
 		filsys.s_free[NICFREE + i - j] = i;
 	}
-	filsys.s_pfree = NICFREE - j;
+	filsys.s_pfree = NICFREE - 1-j+3;
 	filsys.s_pinode = 0;
 	fseek(fd, BLOCKSIZ, SEEK_SET);
+
 	fwrite(&filsys, sizeof ( struct filsys ), 1, fd);
     fclose ( fd );
+
 }
 
 void install ( )

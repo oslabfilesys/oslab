@@ -1,4 +1,4 @@
-/*获取释放i节点内容程序iget()/iput()*/
+/*禄帽脠隆脢脥路脜i陆脷碌茫脛脷脠脻鲁脤脨貌iget()/iput()*/
 #include <stdio.h>
 #include "FILESYS.h"
 #include<malloc.h>
@@ -42,8 +42,12 @@ struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 	/* 4.put it into hinode[inodeid] queue */
 	newinode->i_forw = h_inode [inodeid].i_forw;
 	newinode->i_back = newinode;
-	newinode->i_forw->i_back = newinode;
-    h_inode [inodeid].i_forw = newinode;
+
+	if (newinode->i_forw != NULL) {
+		newinode->i_forw->i_back = newinode;
+	}
+	hinode[inodeid].i_forw = newinode;
+
 	/* 5.initialize the mode */
 	newinode->i_count = 1;
 	newinode->i_flag = 0;    /* flag for not update */
