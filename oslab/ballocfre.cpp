@@ -15,7 +15,7 @@ unsigned int balloc()
 	if( file_system.s_pfree==NICFREE-1)
 	{
 		fseek(fd, DATASTART + BLOCKSIZ*(562- file_system.s_nfree), SEEK_SET);////filsys.s_free[NICFREE-1]+1指向下一个block组的地址块 fread(block_buf,1,BLOCKSIZ,fd);
-		fread(block_buf, 1, BLOCKSIZ, fd);
+		fread(block_buf, sizeof(unsigned int), BLOCKSIZ, fd);
 		free_block_num = block_buf[NICFREE];
 		for(i = 0; i<free_block; i++)
 		{

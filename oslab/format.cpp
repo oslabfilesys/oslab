@@ -4,7 +4,7 @@ void format()
 {
 	struct inode * inode;
 	struct direct dir_buf[BLOCKSIZ / (DIRSIZ + 2)];
-	struct pwd passwd[BLOCKSIZ / (PWDSIZ + 4)];
+//	struct pwd passwd[BLOCKSIZ / (PWDSIZ + 4)];
 	struct filsys filsys;
 	unsigned int block_buf[BLOCKSIZ / sizeof(int)];
 	char * buf;
@@ -21,16 +21,16 @@ void format()
 	fseek(fd, 0, SEEK_SET);
 	fwrite(buf, ( DINODEBLK + FILEBLK + 2 ) * BLOCKSIZ * sizeof ( char ), 1, fd);
 	/*0.initialize the passwd */
-    passwd [0].p_uid = 2116; passwd [0].p_gid = 03;
-    strcpy_s ( passwd [0].password, "dddd" );
-    passwd [1].p_uid = 2117; passwd [1].p_gid = 03;
-    strcpy_s ( passwd [1].password, "bbbb" );
-    passwd [2].p_uid = 2118; passwd [2].p_gid = 04;
-    strcpy_s ( passwd [2].password, "abcd" );
-    passwd [3].p_uid = 2119; passwd [3].p_gid = 04;
-    strcpy_s ( passwd [3].password, "cccc" );
-    passwd [4].p_uid = 2220; passwd [4].p_gid = 05;
-    strcpy_s ( passwd [4].password, "eeee" );
+    _pwd [0].p_uid = 2116; _pwd [0].p_gid = 03;
+    strcpy_s ( _pwd [0].password, "dddd" );
+    _pwd [1].p_uid = 2117; _pwd [1].p_gid = 03;
+    strcpy_s ( _pwd [1].password, "bbbb" );
+    _pwd [2].p_uid = 2118; _pwd [2].p_gid = 04;
+    strcpy_s ( _pwd [2].password, "abcd" );
+    _pwd [3].p_uid = 2119; _pwd [3].p_gid = 04;
+    strcpy_s ( _pwd [3].password, "cccc" );
+    _pwd [4].p_uid = 2220; _pwd [4].p_gid = 05;
+    strcpy_s ( _pwd [4].password, "eeee" );
 	/*	1.creat the main directory and its sub dir etc and the file password */
 	inode = iget(0);	/* 0 empty dinode id */
 	inode->di_mode = DIEMPTY;
@@ -68,14 +68,9 @@ void format()
 	inode->di_mode = DEFAULTMODE | DIFILE;
 	inode->di_size = BLOCKSIZ;
 	inode->di_addr[0] = 2;
-	for (i = 5; i<PWDNUM; i++)
-	{
-		passwd[i].p_uid = 0;
-		passwd[i].p_gid = 0;
-		strcpy_s(passwd[i].password, "	");
-	}
+
 	fseek(fd, DATASTART + 2 * BLOCKSIZ, SEEK_SET);
-	fwrite(passwd, BLOCKSIZ, 1, fd);
+	fwrite( _pwd, BLOCKSIZ, 1, fd);
 	iput(inode);
 	/*	2. initialize the superblock */
 	filsys.s_isize = DINODEBLK;
@@ -108,12 +103,11 @@ void format()
 	j = i + NICFREE;
 	for (i = j; i>2;i--)
 	{
-		filsys.s_free[NICFREE + i - j] = i;
+		filsys.s_free[NICFREE - 1 + i - j] = i;
 	}
 	filsys.s_pfree = NICFREE - 1-j+3;
 	filsys.s_pinode = 0;
 	fseek(fd, BLOCKSIZ, SEEK_SET);
-
 	fwrite(&filsys, sizeof ( struct filsys ), 1, fd);
     fclose ( fd );
 
@@ -141,11 +135,11 @@ void install ( )
     /*4. initialize the user */
     for ( i = 0; i<USERNUM; i++ )
     {
-        user [i].u_uid = 0;
-        user [i].u_gid = 0;
+        users [i].u_uid = 0;
+        users [i].u_gid = 0;
         for ( j = 0; j<NOFILE; j++ )
         {
-            user [i].u_ofile [j] = SYSOPENFILE + 1;
+            users [i].u_ofile [j] = SYSOPENFILE + 1;
         }
     }
     /* 5. read the main directory to initialize the dir */

@@ -33,7 +33,7 @@
 #define READ        1
 #define WRITE       2
 #define EXICUTE     3
-#define DEFAULTMODE 00777
+#define DEFAULTMODE 1
 #define IUPDATE     00002
 #define SUPDATE     00001
 #define FREAD       00001
@@ -119,7 +119,7 @@ extern struct dir directory;
 extern struct file sys_ofile[SYSOPENFILE];
 extern struct filsys file_system;
 extern struct pwd _pwd [PWDNUM];
-extern struct user user[USERNUM];
+extern struct user users [USERNUM];
 extern        FILE *fd;
 extern struct inode *cur_path_inode;
 extern int    user_id, file_block;
