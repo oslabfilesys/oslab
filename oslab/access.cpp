@@ -35,7 +35,7 @@ int login ( unsigned short uid, char * passwd )
     int i, j;
     for ( i = 0; i<PWDNUM; i++ )
     {
-        if ( ( uid == pwd [i].p_uid ) && ( strcmp ( passwd, pwd [i].password ) ) )//验证用户名密码
+        if ( ( uid == _pwd [i].p_uid ) && ( strcmp ( passwd, _pwd [i].password ) ) )//验证用户名密码
         {
             for ( j = 0; j<USERNUM; j++ )
                 if ( user [j].u_uid == 0 ) break;// =0为啥退出
@@ -48,7 +48,7 @@ int login ( unsigned short uid, char * passwd )
             else
             {
                 user [j].u_uid = uid;
-                user [i].u_gid = pwd [i].p_gid;
+                user [i].u_gid = _pwd [i].p_gid;
                 user [j].u_default_mode = DEFAULTMODE;
             }
             break;

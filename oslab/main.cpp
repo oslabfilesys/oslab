@@ -17,10 +17,10 @@
 
 //extern User current_user;
 struct hinode h_inode[NHINO];
-struct dir dir;
+struct dir directory;
 struct file sys_ofile[SYSOPENFILE];
-struct filsys filsys;
-struct pwd pwd[PWDNUM];
+struct filsys file_system;
+struct pwd _pwd[PWDNUM];
 struct user user[USERNUM];
 FILE * fd;
 struct inode * cur_path_inode;
