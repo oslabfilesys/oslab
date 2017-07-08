@@ -1,8 +1,9 @@
-﻿#include <stdio.h>
+﻿//数据块的分配和回收
+#include <stdio.h>
 #include "FILESYS.h"
 
-static unsigned int block_buf[BLOCKSIZ];
-unsigned int balloc()
+static unsigned int block_buf[BLOCKSIZ];//BLOCKSIZ/sizeof(int)
+unsigned int balloc()//分配数据块
 {
 	unsigned int free_block, free_block_num;
 	unsigned int i,flag;
@@ -11,21 +12,34 @@ unsigned int balloc()
 		printf("\nDisk Full!!! \n");
 		return DISKFULL;
 	};
-	free_block = file_system.s_free[file_system.s_pfree];
-	if( file_system.s_pfree==NICFREE-1)
+	i = file_system.s_pfree;
+	flag = (i == 0);
+	if (flag)//该block组全部用了
 	{
-		fseek(fd, DATASTART + BLOCKSIZ*(562- file_system.s_nfree), SEEK_SET);////filsys.s_free[NICFREE-1]+1指向下一个block组的地址块 fread(block_buf,1,BLOCKSIZ,fd);
+		fseek(fd, DATASTART + BLOCKSIZ*(file_system.s_free[NICFREE - 1] + 1), SEEK_SET);//file_system.s_free[NICFREE - 1]+1指向下一个block组的地址块
 		fread(block_buf, 1, BLOCKSIZ, fd);
-		free_block_num = block_buf[NICFREE];
-		for(i = 0; i<free_block; i++)
-		{
-            file_system.s_free[NICFREE-i-1] = block_buf[i];
-		}//将待用block组的地址读入超级块
-        file_system.s_pfree = NICFREE - free_block_num;
+		for (i = 0;i < NICFREE;i++) {
+			file_system.s_free[i] = block_buf[i];
+		}//将待用的block组的地址块读入超级块
+		file_system.s_pfree = NICFREE - 1;
+		free_block = file_system.s_free[file_system.s_pfree];
 	}
+
+	//if( file_system.s_pfree==NICFREE-1)
+	//{
+	//	fseek(fd, DATASTART + BLOCKSIZ*(562- file_system.s_nfree), SEEK_SET);////filsys.s_free[NICFREE-1]+1指向下一个block组的地址块 fread(block_buf,1,BLOCKSIZ,fd);
+	//	fread(block_buf, 1, BLOCKSIZ, fd);
+	//	free_block_num = block_buf[NICFREE];
+	//	for(i = 0; i<free_block; i++)
+	//	{
+ //           file_system.s_free[NICFREE-i-1] = block_buf[i];
+	//	}//将待用block组的地址读入超级块
+ //       file_system.s_pfree = NICFREE - free_block_num;
+	//}
 	else
 	{
-        file_system.s_pfree++;
+		free_block = file_system.s_free[file_system.s_pfree];
+		file_system.s_pfree--;
 	}
     file_system.s_nfree--;
     file_system.s_fmod = SUPDATE;
