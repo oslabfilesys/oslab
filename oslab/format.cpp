@@ -150,7 +150,7 @@ void install ( )
     directory.size = cur_path_inode->di_size / ( DIRSIZ + 2 );
     for ( i = 0; i<DIRNUM; i++ )
     {
-        strcpy_s ( directory.direct [i].d_name, "                 " );
+        strcpy_s ( directory.direct [i].d_name, "    " );
         directory.direct [i].d_ino = 0;
     }
     for ( i = 0; i<directory.size / ( BLOCKSIZ / ( DIRSIZ + 2 ) ); i++ )
@@ -160,5 +160,4 @@ void install ( )
     }
     fseek ( fd, DATASTART + BLOCKSIZ * cur_path_inode->di_addr [i], SEEK_SET );
     fread ( &directory.direct [( BLOCKSIZ ) / ( DIRSIZ + 2 ) * i], 1, cur_path_inode->di_size % BLOCKSIZ, fd );
-    fclose ( fd );
 }
