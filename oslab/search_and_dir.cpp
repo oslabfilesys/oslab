@@ -114,9 +114,9 @@ void mkdir(char *dirname)	/* mkdir 目录创建函数*/
 	fwrite(buf, 1, BLOCKSIZ, fd);
 	inode->di_size = 2 * (DIRSIZ + 2);
 	inode->di_number = 1;
-	inode->di_mode = user[user_id].u_default_mode|DIDIR;
-	inode->di_uid = user[user_id].u_uid;
-	inode->di_gid = user[user_id].u_gid;
+	inode->di_mode = users [user_id].u_default_mode|DIDIR;
+	inode->di_uid = users [user_id].u_uid;
+	inode->di_gid = users [user_id].u_gid;
 	inode->di_addr[0] = block;
 	iput(inode);
 	return;
@@ -134,7 +134,7 @@ void chdir(char *dirname) /* chdir 改变当前目录用函数 */
 		return;
 	}
 	inode = iget(dirid);
-	if (!access(user_id, inode, user[user_id].u_default_mode))
+	if (!access(user_id, inode, users [user_id].u_default_mode))
 	{
 		printf("\nhas not access to the directory %s\n", dirname);
 		iput(inode);

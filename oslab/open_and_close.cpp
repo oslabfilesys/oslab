@@ -42,7 +42,7 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 		sys_ofile[i].f_off = 0;
 	/* alloc the user open file item */
 	for (j = 0; j<NOFILE; j++)
-		if (user[user_id].u_ofile[j] == SYSOPENFILE+1) break;
+		if ( users [user_id].u_ofile[j] == SYSOPENFILE+1) break;
 	if (j == NOFILE)
 	{
 		printf("\nuser open file too much!\n");
@@ -50,7 +50,7 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 		iput(inode);
 		return 0;
 	}
-	user[user_id].u_ofile[j] = 1;
+    users [user_id].u_ofile[j] = 1;
 	/*if APPEND, free the block of the file before */
 	if (!(openmode & FAPPEND))
 	{
@@ -63,9 +63,9 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 void close_file ( unsigned int user_id, unsigned short cfd )
 {
     struct inode *inode;
-    inode = sys_ofile [user [user_id].u_ofile [cfd]].f_inode;
+    inode = sys_ofile [users [user_id].u_ofile [cfd]].f_inode;
     iput ( inode );
-    sys_ofile [user [user_id].u_ofile [cfd]].f_count--;
-    user [user_id].u_ofile [cfd] = SYSOPENFILE + 1;
+    sys_ofile [users [user_id].u_ofile [cfd]].f_count--;
+    users [user_id].u_ofile [cfd] = SYSOPENFILE + 1;
 }
 

@@ -16,6 +16,7 @@ unsigned int balloc()//分配数据块
 	flag = (i == 0);
 	if (flag)//该block组全部用了
 	{
+
 		fseek(fd, DATASTART + BLOCKSIZ*(file_system.s_free[NICFREE - 1] + 1), SEEK_SET);//file_system.s_free[NICFREE - 1]+1指向下一个block组的地址块
 		fread(block_buf, 1, BLOCKSIZ, fd);
 		for (i = 0;i < NICFREE;i++) {
@@ -23,6 +24,7 @@ unsigned int balloc()//分配数据块
 		}//将待用的block组的地址块读入超级块
 		file_system.s_pfree = NICFREE - 1;
 		free_block = file_system.s_free[file_system.s_pfree];
+
 	}
 
 	//if( file_system.s_pfree==NICFREE-1)

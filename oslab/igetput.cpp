@@ -46,7 +46,7 @@ struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 	if (newinode->i_forw != NULL) {
 		newinode->i_forw->i_back = newinode;
 	}
-	hinode[inodeid].i_forw = newinode;
+	h_inode[inodeid].i_forw = newinode;
 
 	/* 5.initialize the mode */
 	newinode->i_count = 1;
