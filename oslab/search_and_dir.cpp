@@ -10,10 +10,10 @@ unsigned int namei(char *name) /* namei */
 
 {
 	int i, notfound = 1;
-	for (i = 0; ((i<dir.size) && (notfound)); i++)
+	for (i = 0; ((i<directory.size) && (notfound)); i++)
 	{
-		if ((!strcmp(dir.direct[i].d_name,name)) && (dir.direct[i].d_ino != 0))
-			return dir.direct[i].d_ino;   /* find */
+		if ((!strcmp( directory.direct[i].d_name,name)) && ( directory.direct[i].d_ino != 0))
+			return directory.direct[i].d_ino;   /* find */
 	}
 	return 0;   /* notfind */
 }
@@ -22,7 +22,7 @@ unsigned int iname(char *name)	/* iname 搜索函数*/
 {
 	int i, notfound = 1;
 	for (i = 0; ((i<DIRNUM) && (notfound)); i++)
-		if (dir.direct[i].d_ino == 0)
+		if ( directory.direct[i].d_ino == 0)
 		{
 			notfound = 0;
 			break;
@@ -35,8 +35,8 @@ unsigned int iname(char *name)	/* iname 搜索函数*/
 	}
 	else
 	{
-		strcpy_s(dir.direct[i].d_name,name);
-		dir.direct[i].d_ino = 1;
+		strcpy_s( directory.direct[i].d_name,name);
+        directory.direct[i].d_ino = 1;
 		return i;
 	}
 }
@@ -45,13 +45,13 @@ void _dir()	/* _dir 显示列表函数 */
 	unsigned short di_mode;
 	int i, j,k,one;
 	struct inode * temp_inode;
-	printf("\nCURRENT DIRECTORY:dir.size=%d\n",dir.size);
-	for (i = 0; i<dir.size; i++)
+	printf("\nCURRENT DIRECTORY:dir.size=%d\n", directory.size);
+	for (i = 0; i<directory.size; i++)
 	{
-		if (dir.direct[i].d_ino != DIEMPTY)
+		if ( directory.direct[i].d_ino != DIEMPTY)
 		{
-			printf("%20s", dir.direct[i].d_name);
-			temp_inode = iget(dir.direct[i].d_ino);
+			printf("%20s", directory.direct[i].d_name);
+			temp_inode = iget( directory.direct[i].d_ino);
 			di_mode = temp_inode->di_mode;
 			if (temp_inode->di_mode&DIFILE)
 				printf("f");
@@ -75,7 +75,7 @@ void _dir()	/* _dir 显示列表函数 */
 				printf("\n");
 			}
 			else 
-				printf("<dir>block chain:%d\n",dir.direct[i].d_ino);
+				printf("<dir>block chain:%d\n", directory.direct[i].d_ino);
 			iput(temp_inode);
 		}
 	}
@@ -101,8 +101,8 @@ void mkdir(char *dirname)	/* mkdir 目录创建函数*/
 	dirpos = iname(dirname);
 	inode = ialloc();
 	dirid=inode->i_ino;
-	dir.direct[dirpos].d_ino = inode->i_ino;
-	dir.size++;
+    directory.direct[dirpos].d_ino = inode->i_ino;
+    directory.size++;
 	/*	fill the new dir buf */
 	strcpy_s(buf[0].d_name,".");
 	buf[0].d_ino = dirid;
@@ -141,36 +141,36 @@ void chdir(char *dirname) /* chdir 改变当前目录用函数 */
 		return;
 	}
 	/* pack the current directory */
-	for (i = 0; i<dir.size; i++)
+	for (i = 0; i<directory.size; i++)
 	{
 		for (j = 0; j<DIRNUM; j++)
-			if (dir.direct[j].d_ino == 0) 
+			if ( directory.direct[j].d_ino == 0)
 				break;
-		memcpy(&dir.direct[j], &dir.direct[i], DIRSIZ + 2);
-		dir.direct[j].d_ino = 0;
+		memcpy(&directory.direct[j], &directory.direct[i], DIRSIZ + 2);
+        directory.direct[j].d_ino = 0;
 	}
 	/*	write back the current directory */
 	for (i = 0; i<cur_path_inode->di_size / BLOCKSIZ + 1; i++)
 	{
 		bfree(cur_path_inode->di_addr[i]);
 	}
-	for (i = 0; i<dir.size; i += BLOCKSIZ / (DIRSIZ + 2))
+	for (i = 0; i<directory.size; i += BLOCKSIZ / (DIRSIZ + 2))
 	{
 		block = balloc();
 		cur_path_inode->di_addr[i] = block;
 		fseek(fd, DATASTART + block*BLOCKSIZ, SEEK_SET);
-		fwrite(&dir.direct[0], 1, BLOCKSIZ, fd);
+		fwrite(&directory.direct[0], 1, BLOCKSIZ, fd);
 	}
-	cur_path_inode->di_size = dir.size*(DIRSIZ + 2);
+	cur_path_inode->di_size = directory.size*(DIRSIZ + 2);
 	iput(cur_path_inode);
 	cur_path_inode = inode;
-	dir.size = inode->di_size / (DIRSIZ + 2);
+    directory.size = inode->di_size / (DIRSIZ + 2);
 	/*	read the change dir from disk */
 	j = 0;
 	for (i = 0; i<inode->di_size / BLOCKSIZ + 1; i++)
 	{
 		fseek(fd, DATASTART + inode->di_addr[i] * BLOCKSIZ, SEEK_SET);
-		fread(&dir.direct[0], 1, BLOCKSIZ, fd);
+		fread(&directory.direct[0], 1, BLOCKSIZ, fd);
 		j += BLOCKSIZ / (DIRSIZ + 2);
 	}
 return;
