@@ -44,8 +44,8 @@
 
 
 struct inode {
-	struct inode *i_forw;
-	struct inode *i_back;
+	struct inode *i_forw;//Ç°Çý
+	struct inode *i_back;//
 	char i_flag;
 	unsigned int i_ino;
 	unsigned int i_count;

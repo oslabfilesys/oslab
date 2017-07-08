@@ -38,7 +38,9 @@ struct inode * iget(unsigned int dinodeid)    /* iget( ) */
 	/* 4.put it into hinode[inodeid] queue */
 	newinode->i_forw = hinode[inodeid].i_forw;
 	newinode->i_back = newinode;
-	newinode->i_forw->i_back = newinode;
+	if (newinode->i_forw != NULL) {
+		newinode->i_forw->i_back = newinode;
+	}
 	hinode[inodeid].i_forw = newinode;
 	/* 5.initialize the mode */
 	newinode->i_count = 1;
