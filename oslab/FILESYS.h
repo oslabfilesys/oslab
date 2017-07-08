@@ -114,7 +114,7 @@ struct user {
 };
 
 
-extern struct hinode hinode[NHINO];
+extern struct hinode h_inode [NHINO];
 extern struct dir dir;
 extern struct file sys_ofile[SYSOPENFILE];
 extern struct filsys filsys;
