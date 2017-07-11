@@ -3,9 +3,13 @@
 #include "FILESYS.h"
 
 static unsigned int block_buf[BLOCKSIZ];//BLOCKSIZ/sizeof(int)
+/**********************************************************
+函数：balloc
+功能：维护超级块中的空闲数据栈，分配空闲数据块，并返回其块号
+***********************************************************/
 unsigned int balloc()//分配数据块
 {
-	unsigned int free_block, free_block_num;
+	unsigned int free_block;
 	unsigned int i,flag;
 	//如果没有空闲盘块
 	if ( file_system.s_nfree == 0)
@@ -13,41 +17,24 @@ unsigned int balloc()//分配数据块
 		printf("\nDisk Full!!! \n");
 		return DISKFULL;
 	};
-	i = file_system.s_pfree;
-	flag = (i == 0);
-	if (flag)//该block组全部用了
-	{
-
-		fseek(fd, DATASTART + BLOCKSIZ*(file_system.s_free[NICFREE - 1] + 1), SEEK_SET);//file_system.s_free[NICFREE - 1]+1指向下一个block组的地址块
-		fread(block_buf, 1, BLOCKSIZ, fd);
-		for (i = 0;i < NICFREE;i++) {
-			file_system.s_free[i] = block_buf[i];
-		}//将待用的block组的地址块读入超级块
-		file_system.s_pfree = NICFREE - 1;
-		free_block = file_system.s_free[file_system.s_pfree];
-
-	}
-
-	//if( file_system.s_pfree==NICFREE-1)
-	//{
-	//	fseek(fd, DATASTART + BLOCKSIZ*(562- file_system.s_nfree), SEEK_SET);////filsys.s_free[NICFREE-1]+1指向下一个block组的地址块 fread(block_buf,1,BLOCKSIZ,fd);
-	//	fread(block_buf, 1, BLOCKSIZ, fd);
-	//	free_block_num = block_buf[NICFREE];
-	//	for(i = 0; i<free_block; i++)
-	//	{
- //           file_system.s_free[NICFREE-i-1] = block_buf[i];
-	//	}//将待用block组的地址读入超级块
- //       file_system.s_pfree = NICFREE - free_block_num;
-	//}
-	else
-	{
-		free_block = file_system.s_free[file_system.s_pfree];
-		file_system.s_pfree--;
-	}
-    file_system.s_nfree--;
+    free_block = file_system.s_free [file_system.s_pfree]; //取堆栈中的盘块号（从3号物理块开始分配）
+    if ( file_system.s_pfree == NICFREE - 1 ) {           //如果堆栈只剩一个块
+        fseek ( fd, DATASTART + ( free_block ) *BLOCKSIZ, SEEK_SET );//从中读取下一组块号
+        fread ( block_buf, 1, BLOCKSIZ, fd );
+        //从中读取下一组块号
+        for ( i = 0; i<NICFREE; i++ )
+            file_system.s_free [i] = block_buf [i];
+        file_system.s_pfree = 0;             //设置堆栈指针
+    }
+    else {//如果堆栈中大于一个盘块
+        file_system.s_pfree++;               //修改堆栈指针
+    }
+    file_system.s_nfree--;                  //修改总块数
     file_system.s_fmod = SUPDATE;
-	return free_block;
+    return free_block;
+
 }
+
 int bfree(unsigned int block_num)
 {
 	int i;

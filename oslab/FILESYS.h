@@ -9,15 +9,15 @@
 #define PWDNUM      32
 #define NOFILE      20
 #define NADDR       10
-#define NHINO       128
+#define NumOfHashIndexNode       128
 #define USERNUM     10
-#define DINODESIZ   32
-#define DINODEBLK   32 //引导块大小
-#define FILEBLK     512//系统允许最多块数	
-#define NICFREE     50//每个块大小
+#define DiskIndexNodeSize   72 //索引节点块大小被改变！！！！！数据块开始地址需要重新计算
+#define DiskIndexNodeBlockNumber   32 //索引节点占的block个数
+#define FileMaxBlockNumber     512 //系统允许最多块数	
+#define NICFREE     50
 #define NICINOD     50
-#define DINODESTART 2*BLOCKSIZ
-#define DATASTART   (2+DINODEBLK)*BLOCKSIZ
+#define DiskIndexNodeStart 2*BLOCKSIZ
+#define DATASTART   2*BLOCKSIZ+DiskIndexNodeBlockNumber*DiskIndexNodeSize
 #define DIEMPTY     00000
 #define DIFILE      01000
 #define DIDIR       02000
@@ -41,6 +41,7 @@
 #define FAPPEND     00004
 #define DISKFULL    65535
 #define SEEK_SET    0
+#define Inode
 
 
 struct inode {
@@ -72,15 +73,17 @@ struct direct {
 };
 //超级快数据结构
 struct filsys {
-	unsigned short s_isize;//对应的inode大小
-	unsigned long s_fsize;//对应超级快大小
-	unsigned int s_nfree;//指向空闲快指针
-	unsigned short s_pfree;
+	unsigned short s_isize;//inode占用的block块数
+	unsigned long s_fsize;//data block总块数
+
+	unsigned int s_nfree;//空闲block数
+	unsigned short s_pfree;//空闲块指针
 	unsigned int s_free[NICFREE];//空闲块数组
-	unsigned int s_ninode;
-	unsigned short s_pinode;
-	unsigned int s_inode[NICINOD];
-	unsigned int s_rinode;
+
+	unsigned int surplus_nunmber_of_inode;//剩余inode节点个数
+	unsigned short surplus_point_to_inode;//空闲inode指针
+	unsigned int s_inode[NICINOD];//空闲inode数组
+	unsigned int s_rinode;//下一组inode的开始地点
 	char s_fmod;//访问模式
 };
 
@@ -114,7 +117,7 @@ struct user {
 };
 
 
-extern struct hinode h_inode [NHINO];
+extern struct hinode hash_index_node [NumOfHashIndexNode];
 extern struct dir directory;
 extern struct file sys_ofile[SYSOPENFILE];
 extern struct filsys file_system;
