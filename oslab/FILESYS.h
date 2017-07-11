@@ -49,12 +49,12 @@ struct inode {
 	char i_flag;//标志位
 	unsigned int i_ino;//inode 号
 	unsigned int i_count;//inode 引用次数
+	unsigned int di_addr[NADDR];//与数据块的地址有关的数组
 	unsigned short di_number;//对应的目录树
 	unsigned short di_mode;//访问模式
 	unsigned short di_uid;//用户号
 	unsigned short di_gid;//用户组号
 	unsigned short di_size;//其大小
-	unsigned int di_addr[NADDR];//与数据块的地址有关的数组
 };
 
 struct dinode {//这个数据结构对应inode里的参数

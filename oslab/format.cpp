@@ -11,7 +11,7 @@ void format()
 	char * empty;
 	int i,j,k;
 	/*	creat the file system file */
-    fopen_s ( &fd, "filesystem", "wb+" );
+    fopen_s ( &fd, "filesystem", "w+b" );
 	buf = (char *)malloc((DINODEBLK + FILEBLK + 2) * BLOCKSIZ * sizeof(char));
 	if (fd == NULL)
 	{
@@ -19,8 +19,9 @@ void format()
 		exit (0);
 	}
 	fseek(fd, 0, SEEK_SET);
-	fwrite(buf, ( DINODEBLK + FILEBLK + 2 ) * BLOCKSIZ * sizeof ( char ), 1, fd);
-	/*0.initialize the passwd */
+	fwrite(buf, 1,( DINODEBLK + FILEBLK + 2 ) * BLOCKSIZ * sizeof ( char ),  fd);
+	free(buf);
+	//初始化硬盘
     _pwd [0].p_uid = 2116; _pwd [0].p_gid = 03;
     strcpy_s ( _pwd [0].password, "dddd" );
     _pwd [1].p_uid = 2117; _pwd [1].p_gid = 03;
@@ -33,41 +34,58 @@ void format()
     strcpy_s ( _pwd [4].password, "eeee" );
 	/*	1.creat the main directory and its sub dir etc and the file password */
 	inode = iget(0);	/* 0 empty dinode id */
-	inode->di_mode = DIEMPTY;
-	iput(inode);
+	inode->di_number = 1;//关联文件数设为1    
+	inode->di_mode = DIEMPTY;//权限设为空权限
+	iput(inode);//回收inode结点
 	inode = iget(1);    /* 1 main dir id */
 	inode->di_number = 1;
 	inode->di_mode = DEFAULTMODE | DIDIR;
-	inode->di_size = 3 * (DIRSIZ + 2);
+	inode->di_size = 3 * (DIRSIZ + 2);//    inode->di_size = 3*(DIRSIZ + 4);
 	inode->di_addr[0] = 0;    /* block 0tfl is used by the main directory */
-	strcpy_s(dir_buf[0].d_name, "..");
-	dir_buf[0].d_ino = 1;
-	strcpy_s(dir_buf[1].d_name, ".");
+	strcpy_s(dir_buf[0].d_name, "..");//父目录
+	dir_buf[0].d_ino = 1;//磁盘inode结点标号为1
+	strcpy_s(dir_buf[1].d_name, ".");//根目录
 	dir_buf[1].d_ino = 1;
-	strcpy_s(dir_buf[2].d_name, "etc");
+	strcpy_s(dir_buf[2].d_name, "etc");//子目录etc目录
 	dir_buf[2].d_ino = 2;
+
 	fseek(fd, DATASTART, SEEK_SET);
-	fwrite(dir_buf, 3 * ( DIRSIZ + 2 ), 1, fd);
+	fwrite(dir_buf, 1,3 * ( DIRSIZ + 2 ), fd);
+   //dir_buf中的前3个元素拷贝到磁盘数据区的第1个数据块
 	iput(inode);
+
+	/*fseek(fd, 1056, SEEK_SET);
+	fread(inode, DINODESIZ, 1, fd);
+	inode = iget(1);
+	iput(inode);*/
 	inode = iget(2);/* 2 etc dir id */
 	inode->di_number = 1;
 	inode->di_mode = DEFAULTMODE | DIDIR;
 	inode->di_size = 3 * (DIRSIZ + 2);
-	inode->di_addr[0] = 0;    /* block 0# is used by the etc */
+	inode->di_addr[0] = 1;    /* block 0# is used by the etc */
+
 	strcpy_s(dir_buf[0].d_name, "..");
 	dir_buf[0].d_ino = 1;
 	strcpy_s(dir_buf[1].d_name, "..");
 	dir_buf[1].d_ino = 2;
-	strcpy_s(dir_buf[2].d_name, "password");
+	strcpy_s(dir_buf[2].d_name, "password");//子目录是password
 	dir_buf[2].d_ino = 3;
 	fseek(fd, DATASTART + BLOCKSIZ * 1, SEEK_SET);
-	fwrite(dir_buf, 3 * ( DIRSIZ + 2 ), 1, fd);
+	fwrite(dir_buf,1, 3 * ( DIRSIZ + 2 ), fd);
+	//dir_buf中的前3个元素拷贝到磁盘数据区的第2个数据块
 	iput(inode);
+
 	inode = iget(3);    /* 3 password id */
 	inode->di_number = 1;
 	inode->di_mode = DEFAULTMODE | DIFILE;
 	inode->di_size = BLOCKSIZ;
 	inode->di_addr[0] = 2;
+
+	for (i = 5; i<PWDNUM; i++) {//设置其余用户的属性
+		_pwd[i].p_uid = 0;
+		_pwd[i].p_gid = 0;
+		strcpy(_pwd[i].password, "            ");  // 密码为空
+	}
 
 	fseek(fd, DATASTART + 2 * BLOCKSIZ, SEEK_SET);
 	fwrite( _pwd, BLOCKSIZ, 1, fd);
@@ -84,33 +102,28 @@ void format()
 	}
 	filsys.s_pinode = 0;
 	filsys.s_rinode = NICINOD + 4;
-	/*FILEBLK+1 is a flag of end */
-	block_buf[NICFREE - 1] = FILEBLK + 1;
-	for (i = 0;i<NICFREE - 1;i++)
-		block_buf[NICFREE - 2 - i] = FILEBLK - i;
-	fseek(fd, DATASTART + BLOCKSIZ * (FILEBLK - NICFREE - 1), SEEK_SET);
-	fwrite(block_buf, BLOCKSIZ, 1, fd);
-	for (i = FILEBLK - NICFREE - 1; i>2; i -= NICFREE)
+	for(i=NICFREE+2;i<FILEBLK;i+=50)
 	{
-		for (j = 0;j<NICFREE;j++)
-		{
-			block_buf[j] = i - j;
+		for (j = 0;j < NICFREE;j++) {
+			block_buf[NICFREE - 1 - j] = i - j;
 		}
-		block_buf[j] = 50;
-		fseek(fd, DATASTART + BLOCKSIZ * (i - 1), SEEK_SET);
+		fseek(fd, DATASTART + BLOCKSIZ*(i - 49), SEEK_SET);
 		fwrite(block_buf, 1, BLOCKSIZ, fd);
+	}//当i=502之后，完成文件块502-453的写入；
+	//之后文件块512-503不能进行，需要特殊处理
+	for (i = 503;i < 512;i++)block_buf[i - 503] = i;
+	fseek(fd, DATASTART + BLOCKSIZ * 503, SEEK_SET);
+	fwrite(block_buf, 1, BLOCKSIZ, fd);//完成块定位
+	for (i = 0;i < NICFREE;i++) {
+		filsys.s_free[i] = i + 3;//DATASTART的第一个BLOCK作为MAIN DIRECTORY
+								 //第二个BLOCK作为etc目录 //第三个BLOCK作为password文 //故此i要加3
 	}
-	j = i + NICFREE;
-	for (i = j; i>2;i--)
-	{
-		filsys.s_free[NICFREE - 1 + i - j] = i;
-	}
-	filsys.s_pfree = NICFREE - 1-j+3;
+	j = 1;
+	filsys.s_pfree = NICFREE - j;
 	filsys.s_pinode = 0;
 	fseek(fd, BLOCKSIZ, SEEK_SET);
-	fwrite(&filsys, sizeof ( struct filsys ), 1, fd);
-    fclose ( fd );
-
+	fwrite(&filsys, 1, sizeof(struct filsys), fd);
+	fclose(fd);
 }
 
 void install ( )
