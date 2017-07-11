@@ -2,67 +2,63 @@
 #include "FILESYS.h"
 #include"igetput.h"
 
-static struct dinode block_buf[BLOCKSIZ / DINODESIZ];
+static unsigned char block_buf[51];
 struct inode * ialloc()
 {
 	struct inode * temp_inode;
 	unsigned int cur_di;
 	int i, count, block_end_flag;
-	i = file_system.s_pinode;
-	if ( file_system.s_pinode == NICINOD)
+
+	if ( file_system.surplus_point_to_inode == NICINOD)//inode数组分完了，该重新准备了
 	{
-		i = 0;
-		count = 0;
+		count = 0;//总数初始化
 		block_end_flag = 1;
-        file_system.s_pinode = NICINOD - 1;
+        file_system.surplus_point_to_inode = 0;
 		cur_di = file_system.s_rinode;
-		while ((count <NICINOD) || (count <= file_system.s_ninode))
-		{
-			if (block_end_flag)
-			{
-				fseek(fd, DINODESTART + cur_di*DINODESIZ, SEEK_SET);
-				fread(block_buf, 1, BLOCKSIZ, fd);
-				block_end_flag = 0;
-				i = 0;
-			}
-			while (block_buf[i].di_mode == DIEMPTY)
-			{
-				cur_di++;
-				i++;
-			}
-			if (i == NICINOD)
-				block_end_flag = 1;
-			else
-			{
-                file_system.s_inode[file_system.s_pinode--] = cur_di;
-				count++;
-			}
-		}
-        file_system.s_rinode = cur_di;
+        fseek ( fd, DiskIndexNodeStart + DiskIndexNodeSize*cur_di, SEEK_SET );
+        fread ( block_buf, 1, 51, fd );
+        for ( int i = 0; i < 50; i++ )
+        {
+            file_system.s_inode [i] = block_buf [i];
+        }
+        file_system.s_rinode = block_buf [51];
+
 	}
-	i = file_system.s_inode[file_system.s_pinode];
-	temp_inode = iget(file_system.s_inode[file_system.s_pinode]);
-	fseek(fd, DINODESTART + file_system.s_inode[file_system.s_pinode] * DINODESIZ, SEEK_SET);
-	fwrite(temp_inode, 1, DINODESIZ, fd);
-    file_system.s_pinode++;
-    file_system.s_ninode--;
-    file_system.s_fmod = SUPDATE;
+    if ( file_system.surplus_nunmber_of_inode == 0 ) {
+        temp_inode = nullptr;
+        printf ( "inode none!\n" );
+    }
+    else
+    {
+        temp_inode = iget ( file_system.s_inode [file_system.surplus_point_to_inode] );
+        file_system.surplus_point_to_inode = file_system.surplus_point_to_inode + 1;
+        file_system.surplus_nunmber_of_inode--;
+        file_system.s_fmod = SUPDATE;
+    }
 	return temp_inode;
 }
+
+
 void ifree(unsigned dinodeid)	 /* ifree */
 {
-    file_system.s_ninode++;
-	if ( file_system.s_pinode != NICINOD)    /* notfull */
+    file_system.surplus_nunmber_of_inode++;
+	if ( file_system.surplus_point_to_inode != 0)    /* notfull */
 	{
-        file_system.s_inode[file_system.s_pinode] = dinodeid;
-        file_system.s_pinode++;
+        file_system.s_inode[file_system.surplus_point_to_inode--] = dinodeid;
 	}
 	else /* full */
 	{
-		if (dinodeid <file_system.s_rinode)
-		{
-            file_system.s_inode[NICINOD] = dinodeid;
-            file_system.s_rinode = dinodeid;
-		}
+        unsigned char buff [51];
+        for ( int i = 0; i < 50; i++ )
+        {
+            buff [i] = file_system.s_inode [i];
+        }
+        buff [50] = file_system.s_rinode;
+        file_system.s_rinode = file_system.s_inode [0];//将新的一组保存到buff[0】
+        fseek ( fd, DiskIndexNodeStart + DiskIndexNodeSize*file_system.s_rinode, SEEK_SET );
+        fwrite ( buff, 1, 51, fd );//保存完成
+
+        file_system.surplus_point_to_inode = 49;
+        file_system.s_inode [file_system.surplus_point_to_inode] = dinodeid;//新的一组
 	}
 }
