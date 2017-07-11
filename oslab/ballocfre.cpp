@@ -7,6 +7,7 @@ unsigned int balloc()//分配数据块
 {
 	unsigned int free_block, free_block_num;
 	unsigned int i,flag;
+	//如果没有空闲盘块
 	if ( file_system.s_nfree == 0)
 	{
 		printf("\nDisk Full!!! \n");

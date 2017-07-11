@@ -8,6 +8,7 @@ struct inode * ialloc()
 	struct inode * temp_inode;
 	unsigned int cur_di;
 	int i, count, block_end_flag;
+	i = file_system.s_pinode;
 	if ( file_system.s_pinode == NICINOD)
 	{
 		i = 0;
@@ -39,9 +40,10 @@ struct inode * ialloc()
 		}
         file_system.s_rinode = cur_di;
 	}
+	i = file_system.s_inode[file_system.s_pinode];
 	temp_inode = iget(file_system.s_inode[file_system.s_pinode]);
 	fseek(fd, DINODESTART + file_system.s_inode[file_system.s_pinode] * DINODESIZ, SEEK_SET);
-	fwrite(&temp_inode->di_number, 1, sizeof(struct dinode), fd);
+	fwrite(temp_inode, 1, DINODESIZ, fd);
     file_system.s_pinode++;
     file_system.s_ninode--;
     file_system.s_fmod = SUPDATE;
