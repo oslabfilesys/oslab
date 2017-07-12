@@ -38,17 +38,23 @@ unsigned int balloc()//分配数据块
 int bfree(unsigned int block_num)
 {
 	int i;
-	if ( file_system.s_pfree == NICFREE - 1)//表示回收的block已经可以组成一个block组了
+	if ( file_system.s_pfree == 0)//表示回收的block已经可以组成一个block组了
 	{
 		for (i = 0; i<NICFREE; i++)
 		{
-			block_buf[i] = file_system.s_free[NICFREE - 1 - i];
+			block_buf[i] = file_system.s_free[i];
 		}
-        file_system.s_pfree = 0;
-		fseek(fd, DATASTART + BLOCKSIZ*( file_system.s_free[0]), SEEK_SET); //filsys.s_free[0]为当前BLOCK组的地址块
+        file_system.s_pfree = 49;
+		fseek(fd, DATASTART + BLOCKSIZ*( block_num), SEEK_SET); //保存到上一组的最后一块
+        printf ( "write freeblocks to %d", block_num );
 		fwrite(block_buf, 1, BLOCKSIZ, fd);
+        file_system.s_free [file_system.s_pfree] = block_num;
+
 	}
-	else file_system.s_pfree++;
+    else {
+        file_system.s_free [--file_system.s_pfree] = block_num;
+        
+    }
     file_system.s_nfree++;
     file_system.s_fmod = SUPDATE;
 	return 0;
