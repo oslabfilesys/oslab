@@ -2,7 +2,7 @@
 #include "FILESYS.h"
 #include "read_and_write.h"
 #include"ballocfre.h"
-unsigned int read_file(int fd1,char *buf,unsigned int size)
+unsigned int read_file(int fd1,char *buf,unsigned int size)//fd1只是一个形参，相当于第几个文件
 
 {
 	unsigned long off;

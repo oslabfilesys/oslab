@@ -6,45 +6,54 @@
 #include"ballocfre.h"
 #include"iallfre.h"
 #include"access.h"
-int create_file(unsigned int user_id, char *filename,unsigned short mode)
+int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户ID；文件名；存取权限
 {
 	unsigned int di_ith, di_ino;
 	struct inode * inode;
 	int i, j;
-	di_ino = namei(filename);  // ???
+	di_ino = namei(filename);  // 磁盘索引节点赋值是否为空
 	if (di_ino != 0)	/* already existed */
 	{
 		inode = iget(di_ino);
-		if (access(user_id, inode, mode) == 0)
+		if (access(user_id, inode, mode) == 0)//访问控制权限
 		{
 			iput(inode);
 			printf("\ncreate access not allowed");
 			return 0;
 		}
-		/* free all the block of the old file */
-		for (i = 0; i<inode->di_size / BLOCKSIZ + 1; i++)
+		else
 		{
-			bfree(inode->di_addr[i]);
-		}
-		/* to do: add code here to update the pointer of the sys_file */
-		for (i = 0; i<SYSOPENFILE; i++)
-			if (sys_ofile[i].f_inode == inode)
+			printf("\ndo you want to replace the old file?(y/n)\n");
+			if (getchar() == 'y')
 			{
-				sys_ofile[i].f_off = 0;
-			}
-		for (i = 0; i<NOFILE; i++)
-			if ( users [user_id].u_ofile[i] == SYSOPENFILE + 1)
-			{
-                users [user_id].u_uid = inode->di_uid;
-                users [user_id].u_gid = inode->di_gid;
-				for (j = 0; j<SYSOPENFILE; j++)
-					if (sys_ofile[j].f_count == 0)
+				/* free all the block of the old file */
+				for (i = 0; i < inode->di_size / BLOCKSIZ + 1; i++)
+				{
+					bfree(inode->di_addr[i]);
+				}
+				/* to do: add code here to update the pointer of the sys_file */
+				for (i = 0; i < SYSOPENFILE; i++)
+					if (sys_ofile[i].f_inode == inode)
 					{
-                        users [user_id].u_ofile[i] = j;
-						sys_ofile[j].f_flag = mode;
+						sys_ofile[i].f_off = 0;
 					}
-				return i;
+				for (i = 0; i < NOFILE; i++)
+					if (users[user_id].u_ofile[i] == SYSOPENFILE + 1)
+					{
+						users[user_id].u_uid = inode->di_uid;
+						users[user_id].u_gid = inode->di_gid;
+						for (j = 0; j < SYSOPENFILE; j++)
+							if (sys_ofile[j].f_count == 0)
+							{
+								users[user_id].u_ofile[i] = j;
+								sys_ofile[j].f_flag = mode;
+							}
+						return i;
+					}
 			}
+			else
+				return 0;
+		}
 	}
 	else /* not existed before */
 	{
@@ -77,12 +86,12 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)
 	}
 }
 
-void delete_file ( char * filename )
+void delete_file ( char * filename )//删除文件
 {
     unsigned int dinodeid, i;
     struct inode *inode;
     dinodeid = namei ( filename );
-    if ( dinodeid != 0 )
+    if ( dinodeid != 0 ) //文件是否存在
         inode = iget ( dinodeid );
     else
     {
