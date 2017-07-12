@@ -38,14 +38,16 @@ int main() {
 
 
     install ( );
-    for ( int i = 0; i < 49; i++ )
+    for ( int i = 0; i < 7; i++ )
     {
-        ialloc ( );
+        balloc ( );
     }
-    ialloc ( );
-    ialloc ( );
-    ifree ( 4 );
-    ifree ( 5 );
+    balloc ( );
+    balloc ( );
+    balloc ( );
+    bfree ( 11 );
+    bfree ( 10 );
+    balloc ( );
     //printf ( "\nCommand : dir  \n" );
     //\
 

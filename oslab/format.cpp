@@ -120,25 +120,22 @@ void format()
     fseek ( fd, DiskIndexNodeStart + DiskIndexNodeSize * (i -50), SEEK_SET );//倒数第五十块
     fwrite ( inode_buffer, 1, 51, fd );
 
-    /*将block map表存放在block中：从最后一个block开始存，每个block存放50个block号，block号和存放的第1个block号相同*/
+    /*将block map表存放在block中：从最后一个block开始存，每个block存放50个block号*/
     /*FILEBLK+1 is a flag of end */
-    block_buf [NICFREE - 1] = FileMaxBlockNumber + 1;//结束标志513
-    for ( i = 0; i < NICFREE - 1; i++ )// 
-        block_buf [NICFREE - 2 - i] = FileMaxBlockNumber - i;
-    fseek ( fd, DATASTART + BLOCKSIZ * ( FileMaxBlockNumber - NICFREE - 1 ), SEEK_SET );//倒数第五十块
-    fwrite ( block_buf, 1, BLOCKSIZ, fd );
-    for ( i = FileMaxBlockNumber - NICFREE - 1; i > 2; i -= NICFREE )//倒数第五十块开始，直到第二块结束（0 1 2被占用）
+    //
+    for ( i = FileMaxBlockNumber - 1; i > 50; i -= NICFREE )//倒数第五十块开始，直到第二块结束（0 1 2被占用）
     {
         for ( j = 0; j < NICFREE; j++ )
         {
-            block_buf [j] = i - j;//倒着分配
+            block_buf [j] = i + j - 50 + 1;// 511 + 0 - 50 + 1= ?? 第一块地址！正着来 
         }
-        block_buf [j] = FileMaxBlockNumber + 1;//结束标志513
-        fseek ( fd, DATASTART + BLOCKSIZ * ( i - 1 ), SEEK_SET );
+        block_buf [j] = FileMaxBlockNumber + 1;//结束标志513，其实没用到这玩意
+        fseek ( fd, DATASTART + BLOCKSIZ * (i -50), SEEK_SET );//把东西保存到前一组的最后一块 本组最后一块511 上一组最后一块是-50
         fwrite ( block_buf, 1, BLOCKSIZ, fd );
     }
-    j = i + NICFREE;//处理最后一组，不足50块
-    for ( i = j; i > 2; i-- )
+
+    j = i ;//处理最后一组，不足50块
+    for ( ; i > 2; i-- )
     {
         filsys.s_free [NICFREE + i - j - 1] = i;
     }
