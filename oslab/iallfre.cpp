@@ -34,6 +34,10 @@ struct inode * ialloc()
         file_system.surplus_point_to_inode = file_system.surplus_point_to_inode + 1;
         file_system.surplus_nunmber_of_inode--;
         file_system.s_fmod = SUPDATE;
+        for ( int i = 0; i < NADDR; i++ )
+        {
+            temp_inode->di_addr [i] = NotHaveInode;
+        }
     }
 	return temp_inode;
 }

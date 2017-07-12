@@ -17,16 +17,16 @@
 
 //extern User current_user;
 struct hinode hash_index_node [NumOfHashIndexNode];
-struct dir directory;
+struct dir directory;//当前目录，包含当前目录下的目录和文件
 struct file sys_ofile[SYSOPENFILE];
 struct filsys file_system;
 struct pwd _pwd[PWDNUM];
 struct user users[USERNUM];
 FILE * fd;
 struct inode * cur_path_inode;
-int user_id, file_block;
+int user_id;
 
-
+//8用户同时使用，每个用户可以打开20个文件
 int main() {
     unsigned short ab_fd1, ab_fd2, ab_fd3, ab_fd4;
     unsigned short bhy_fd1;
@@ -38,63 +38,57 @@ int main() {
 
 
     install ( );
-    for ( int i = 0; i < 7; i++ )
-    {
-        balloc ( );
-    }
-    balloc ( );
-    balloc ( );
-    balloc ( );
-    bfree ( 11 );
-    bfree ( 10 );
-    balloc ( );
-    //printf ( "\nCommand : dir  \n" );
-    //\
+    printf ( "\nCommand : dir  \n" );
+    \
 
-    //    _dir ( );
+        _dir ( );
 
-    //login ( 2118, "abcd" );
-    //user_id = 0;
-    //mkdir ( "a2118" );
-    //chdir ( "a2118" );
-    //ab_fd1 = create_file ( user_id, "ab_file0.c", 01777 );
-    //buf = ( char * ) malloc ( BLOCKSIZ * 6 + 5 );
-    //write_file ( ab_fd1, buf, BLOCKSIZ * 6 + 5 );
-    //close_file ( user_id, ab_fd1 );
-    //free ( buf );
+    login ( 2118, "abcd" );
+    user_id = 0;
+    mkdir ( "a2118" );
+    chdir ( "a2118" );
+    ab_fd1 = create_file ( user_id, "ab_file0.c", 01777 );
+    buf = ( char * ) malloc ( BLOCKSIZ * 6 + 5 );
+    _dir ( );
+    write_file ( ab_fd1, buf, BLOCKSIZ * 6 + 5 );
+    close_file ( user_id, ab_fd1 );
+    _dir ( );
+    delete_file ( "ab_file0.c" );
+    _dir ( );
+    free ( buf );
 
-    //mkdir ( "subdir" );
-    //chdir ( "subdir" );
-    //ab_fd2 = create_file ( user_id, "file1.c", 01777 );
-    //buf = ( char * ) malloc ( BLOCKSIZ * 4 + 20 );
-    //write_file ( ab_fd2, buf, BLOCKSIZ * 4 + 20 );
-    //close_file ( user_id, ab_fd2 );
-    //free ( buf );
+    mkdir ( "subdir" );
+    chdir ( "subdir" );
+    ab_fd2 = create_file ( user_id, "file1.c", 01777 );
+    buf = ( char * ) malloc ( BLOCKSIZ * 4 + 20 );
+    write_file ( ab_fd2, buf, BLOCKSIZ * 4 + 20 );
+    close_file ( user_id, ab_fd2 );
+    free ( buf );
 
-    //chdir ( ".." );
-    //ab_fd3 = create_file ( user_id, "_file2.c", 01777 );
-    //buf = ( char * ) malloc ( BLOCKSIZ * 10 + 255 );
-    //write_file ( ab_fd3, buf, BLOCKSIZ * 3 + 255 );
-    //close_file ( user_id, ab_fd3 );
-    //free ( buf );
+    chdir ( ".." );
+    ab_fd3 = create_file ( user_id, "_file2.c", 01777 );
+    buf = ( char * ) malloc ( BLOCKSIZ * 10 + 255 );
+    write_file ( ab_fd3, buf, BLOCKSIZ * 3 + 255 );
+    close_file ( user_id, ab_fd3 );
+    free ( buf );
 
-    //delete_file( "ab_file0.c" );
-    //ab_fd4 = create_file ( user_id, "ab_file3.c", 01777 );
-    //buf = ( char * ) malloc ( BLOCKSIZ * 8 + 300 );
-    //write_file ( ab_fd4, buf, BLOCKSIZ * 8 + 300 );
-    //close_file ( user_id, ab_fd4 );
-    //free ( buf );
+    delete_file( "ab_file0.c" );
+    ab_fd4 = create_file ( user_id, "ab_file3.c", 01777 );
+    buf = ( char * ) malloc ( BLOCKSIZ * 8 + 300 );
+    write_file ( ab_fd4, buf, BLOCKSIZ * 8 + 300 );
+    close_file ( user_id, ab_fd4 );
+    free ( buf );
 
-    //ab_fd3 = open_file ( user_id, "ab_file2.c", FAPPEND );
-    //buf = ( char * ) malloc ( BLOCKSIZ * 3 + 100 );
-    //write_file ( ab_fd3, buf, BLOCKSIZ * 3 + 100 );
-    //close_file (user_id,  ab_fd3 );
-    //free ( buf );
+    ab_fd3 = open_file ( user_id, "ab_file2.c", FAPPEND );
+    buf = ( char * ) malloc ( BLOCKSIZ * 3 + 100 );
+    write_file ( ab_fd3, buf, BLOCKSIZ * 3 + 100 );
+    close_file (user_id,  ab_fd3 );
+    free ( buf );
 
-    //_dir ( );
-    //chdir ( ".." );
-    //logout ( user_id);
- //   halt ( );
+    _dir ( );
+    chdir ( ".." );
+    logout ( user_id);
+//    halt ( );
 
     /*
 	printf("--------------welcome to xxx file system-----------------\n");

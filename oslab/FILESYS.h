@@ -2,7 +2,7 @@
 #include <stdio.h>
 #define _CRT_SECURE_NO_WARNINGS
 #define BLOCKSIZ    512
-#define SYSOPENFILE 40
+#define SYSOPENFILE 160
 #define DIRNUM      128
 #define DIRSIZ      14
 #define PWDSIZ      12
@@ -41,7 +41,8 @@
 #define FAPPEND     00004
 #define DISKFULL    65535
 #define SEEK_SET    0
-#define Inode
+#define UserOpenFileOverflow 21
+#define NotHaveInode 6666
 
 
 struct inode {
@@ -50,12 +51,12 @@ struct inode {
 	char i_flag;//标志位
 	unsigned int i_ino;//inode 号
 	unsigned int i_count;//inode 引用次数
-	unsigned int di_addr[NADDR];//与数据块的地址有关的数组
-	unsigned short di_number;//对应的目录树
+	unsigned int di_addr[NADDR];//文件的物理块号
+	unsigned short di_number;//关联的文件数
 	unsigned short di_mode;//访问模式
 	unsigned short di_uid;//用户号
 	unsigned short di_gid;//用户组号
-	unsigned short di_size;//其大小
+	unsigned short di_size;//文件大小
 };
 
 struct dinode {//这个数据结构对应inode里的参数
@@ -103,10 +104,10 @@ struct hinode {
 };
 
 struct file {
-	char f_flag;
-	unsigned int f_count;
-	struct inode *f_inode;
-	unsigned long f_off;
+	char f_flag;//文件操作标志
+	unsigned int f_count;//引用计数
+	struct inode *f_inode;//内存索引节点
+	unsigned long f_off;//读写指针
 };
 
 struct user {
@@ -125,4 +126,4 @@ extern struct pwd _pwd [PWDNUM];
 extern struct user users [USERNUM];
 extern        FILE *fd;
 extern struct inode *cur_path_inode;
-extern int    user_id, file_block;
+extern int    user_id;

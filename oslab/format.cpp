@@ -54,7 +54,7 @@ void format()
 	dir_buf[2].d_ino = 2;
 
 	fseek(fd, DATASTART, SEEK_SET);
-	fwrite(dir_buf, 1,3 * sizeof(struct direct), fd);
+	fwrite(dir_buf, 1, 3 * sizeof(struct direct), fd);
    //dir_buf中的前3个元素拷贝到磁盘数据区的第1个数据块
 	iput(inode);
 
