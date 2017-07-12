@@ -6,7 +6,7 @@
 #include"ballocfre.h"
 #include"access.h"
 
-unsigned short open_file(int user_id, char *filename, unsigned short openmode)
+unsigned short open_file(int user_id, char *filename, unsigned short openmode)//用户ID；文件名；打开权限
 {
 	unsigned int dinodeid;
 	struct inode * inode;
@@ -27,7 +27,7 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 	/* alloc the sys-ofile item */
 	for (i = 1; i<SYSOPENFILE; i++)
 		if (sys_ofile[i].f_count == 0) break;
-	if (i == SYSOPENFILE)
+	if (i == SYSOPENFILE)//文件打开数量
 	{
 		printf("\nsystem open file too much\n");
 		iput(inode);
@@ -60,7 +60,7 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)
 	}
 	return j;
 }
-void close_file ( unsigned int user_id, unsigned short cfd )
+void close_file ( unsigned int user_id, unsigned short cfd )//u_ofile 用户打开文件表
 {
     struct inode *inode;
     inode = sys_ofile [users [user_id].u_ofile [cfd]].f_inode;
