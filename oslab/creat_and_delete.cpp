@@ -6,12 +6,14 @@
 #include"ballocfre.h"
 #include"iallfre.h"
 #include"access.h"
+
+//创建完成就打开了
 int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户ID；文件名；存取权限
 {
 	unsigned int di_ith, di_ino;
 	struct inode * inode;
 	int i, j;
-	di_ino = namei(filename);  // 磁盘索引节点赋值是否为空
+	di_ino = search_directory_or_file_id_by_name (filename);//是否已经存在文件或者文件夹
 	if (di_ino != 0)	/* already existed */
 	{
 		inode = iget(di_ino);
@@ -21,7 +23,7 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户I
 			printf("\ncreate access not allowed");
 			return 0;
 		}
-		else
+		else//有访问权限而且文件存在
 		{
 			printf("\ndo you want to replace the old file?(y/n)\n");
 			if (getchar() == 'y')
@@ -58,25 +60,30 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户I
 	else /* not existed before */
 	{
 		inode = ialloc();
-		di_ith = iname(filename);
+		di_ith = put_the_name_to_current_dir (filename);//写入到了drectory的第几项
         directory.size++;
         directory.direct[di_ith].d_ino = inode->i_ino;
-        directory.direct[di_ith + 1].d_ino = 0;
+
 		inode->di_mode = users [user_id].u_default_mode | DIFILE;
 		inode->di_uid = users [user_id].u_uid;
 		inode->di_gid = users [user_id].u_gid;
-		inode->di_size = file_block;
-		inode->di_number = 1;
-		for (i = 0; i < SYSOPENFILE; i++)
+		inode->di_size = 0;//初始文件大小
+		inode->di_number = 1;//关联文件数
+		for (i = 0; i < SYSOPENFILE; i++)//系统打开文件数
 			if (sys_ofile[i].f_count == 0)
 			{
 				break;
 			}
-		for (j = 0; j < NOFILE; j++)
+		for (j = 0; j < NOFILE; j++)//用户打开的文件数
 			if ( users [user_id].u_ofile[j] == SYSOPENFILE + 1)
 			{
 				break;
 			}
+        if ( i == SYSOPENFILE || j == NOFILE )
+        {
+            printf ( "用户打开文件超过限制！\n" );
+            return UserOpenFileOverflow;
+        }
         users [user_id].u_ofile[j] = i;
 		sys_ofile[i].f_flag = mode;
 		sys_ofile[i].f_count = 0;
@@ -90,7 +97,7 @@ void delete_file ( char * filename )//删除文件
 {
     unsigned int dinodeid, i;
     struct inode *inode;
-    dinodeid = namei ( filename );
+    dinodeid = search_directory_or_file_id_by_name ( filename );
     if ( dinodeid != 0 ) //文件是否存在
         inode = iget ( dinodeid );
     else
