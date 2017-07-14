@@ -20,6 +20,7 @@ unsigned int access ( unsigned int user_id, struct inode * _inode, unsigned shor
             break;
         case WRITE_AB:
         case ADD_AB:
+        case WriteAble:
             if ( _inode->di_uid == users [user_id].u_uid ) return 1;
             else if ( _inode->other_mode & WriteAble )
             {

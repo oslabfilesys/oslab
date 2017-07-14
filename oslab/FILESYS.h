@@ -59,6 +59,7 @@
 #define SEEK_SET    0
 #define UserOpenFileOverflow 21
 #define NotHaveInode 6666
+#define NOTFOUND 6666
 
 #define NOTLOGIN 6666
 
