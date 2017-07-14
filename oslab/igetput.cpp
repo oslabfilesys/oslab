@@ -85,7 +85,7 @@ int iput(struct inode * put_inode) /* iput ( ) */
 		else
 		{
 			/* 删除磁盘i结点和文件对应的物理块 */ 
-			block_num = put_inode->di_size / BLOCKSIZ;
+			block_num = put_inode->di_size / BLOCKSIZ + 1;
 			for (i = 0;i<(int)block_num;i++)
 			{
 				bfree( put_inode->di_addr[i]);

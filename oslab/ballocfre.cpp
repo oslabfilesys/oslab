@@ -31,7 +31,6 @@ unsigned int balloc()//分配数据块
     }
     file_system.s_nfree--;                  //修改总块数
     file_system.s_fmod = SUPDATE;
-    printf_s ( "balloc %d\n", free_block );
     return free_block;
 
 }
@@ -55,7 +54,6 @@ int bfree(unsigned int block_num)
         file_system.s_free [--file_system.s_pfree] = block_num;
         
     }
-    printf_s ( "bfree %d\n", block_num );
     file_system.s_nfree++;
     file_system.s_fmod = SUPDATE;
 	return 0;

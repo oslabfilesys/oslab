@@ -6,7 +6,7 @@
 #include"ballocfre.h"
 #include"access.h"
 #include"iallfre.h"
-unsigned int search_directory_or_file_id_by_name(char *name) /* namei */
+unsigned int search_directory_or_file_id_by_name( const char *name) /* namei */
 
 {
 	int i, notfound = 1;
@@ -18,7 +18,7 @@ unsigned int search_directory_or_file_id_by_name(char *name) /* namei */
 	return 0;   /* notfind */
 }
 
-unsigned int put_the_name_to_current_dir(char *name)	/* iname 搜索函数*/
+unsigned int put_the_name_to_current_dir( const char *name)	/* iname 搜索函数*/
 {
 	int i, notfound = 1;
 	for (i = 0; i < DIRNUM; i++)
@@ -40,6 +40,7 @@ unsigned int put_the_name_to_current_dir(char *name)	/* iname 搜索函数*/
 		return i;
 	}
 }
+
 void _dir()	/* _dir 显示列表函数 */
 {
 	unsigned short di_mode;
@@ -53,7 +54,7 @@ void _dir()	/* _dir 显示列表函数 */
 			printf("%20s", directory.direct[i].d_name);
 			temp_inode = iget( directory.direct[i].d_ino);
 			di_mode = temp_inode->di_mode;
-			if (temp_inode->di_mode&DIFILE)
+			if (temp_inode->di_mode&FILE_TYPE)
 				printf("f");
 			else
 				printf("d");
@@ -66,32 +67,32 @@ void _dir()	/* _dir 显示列表函数 */
 				else 
 					printf("-");
 			}
-			if (temp_inode->di_mode &DIFILE)
+			if (temp_inode->di_mode &FILE_TYPE )
 			{
 				printf("%ld", temp_inode->di_size);
 				printf("block chain:");
 				for (k = 0; k<temp_inode->di_size / BLOCKSIZ + 1; k++)
-					printf("%d", temp_inode->di_addr[k]);
+					printf("%d ", temp_inode->di_addr[k]);
 				printf("\n");
 			}
 			else 
-				printf("<dir>block chain:%d\n", directory.direct[i].d_ino);
+				printf("<dir>block chain:%d\n", temp_inode->di_addr [0] );
 			iput(temp_inode);
 		}
 	}
 }
 
-void mkdir(char *dirname)	/* mkdir 目录创建函数*/
+void mkdir( const char *dirname)	/* mkdir 目录创建函数*/
 {
 	int dirid, dirpos;
 	struct inode * inode;
-	struct direct direct_buf[BLOCKSIZ / (DIRSIZ + 2)];
+	struct direct direct_buf[MaxNumberOfDirOrFileInADirectory];
 	unsigned int block;
 	dirid = search_directory_or_file_id_by_name (dirname);
 	if (dirid != 0)
 	{
 		inode = iget(dirid);
-		if (inode->di_mode & DIDIR)
+		if (inode->di_mode & DIR_TYPE)
 			printf("\n%s directory already existed!\n",dirname);
 		else
 			printf("\n%s is a file name, &can't create a dir the same name\n", dirname);
@@ -108,34 +109,39 @@ void mkdir(char *dirname)	/* mkdir 目录创建函数*/
 	dirid=inode->i_ino;
     directory.direct[dirpos].d_ino = dirid;
     directory.size++;
+    cur_path_inode->di_size = directory.size * 20;
 
 	/*	fill the new dir buf */
 	strcpy_s( direct_buf [0].d_name,".");//增加当前目录的目录项
     direct_buf [0].d_ino = dirid;
 	strcpy_s( direct_buf [1].d_name,"..");//增加上一级的目录项
     direct_buf [1].d_ino = cur_path_inode->i_ino;
-    for ( int i = 2; i < BLOCKSIZ / ( DIRSIZ + 2 ); i++ )
+    for ( int i = 2; i <MaxNumberOfDirOrFileInADirectory; i++ )
     {
         strcpy_s ( direct_buf [i].d_name, "   " );
         direct_buf [i].d_ino = 0;
     }
+
 	block = balloc();
 	fseek(fd, DATASTART + block * BLOCKSIZ, SEEK_SET);
-	fwrite( direct_buf, 1, BLOCKSIZ, fd);
-	inode->di_size = 2 * (DIRSIZ + 2);
+    fwrite ( direct_buf, 1, MaxNumberOfDirOrFileInADirectory * sizeof ( struct direct) , fd );
+	inode->di_size = 2 * (20);
 	inode->di_number = 1;
-	inode->di_mode = users [user_id].u_uid;
-	inode->di_gid = users [user_id].u_default_mode|DIDIR;
-	inode->di_uid = users [user_id].u_gid;
+	inode->di_mode = DIR_TYPE;//默认自己权限
+    inode->other_mode = READ_AB;// 他人默认可读
+	inode->di_uid = users [user_id].u_uid;
 	inode->di_addr[0] = block;
 	iput(inode);
+    printf ( "create dir %s success!\n", dirname );
 	return;
 }
-void chdir(char *dirname) /* chdir 改变当前目录用函数 */
+
+void chdir( const char *dirname) /* chdir 改变当前目录用函数 */
 {
 	unsigned int dirid;
 	struct inode * inode;
 	unsigned short block;
+    struct direct direct_buf [32];
 	int i, j, low = 0, high = 0;
 	dirid = search_directory_or_file_id_by_name (dirname);
 	if (dirid == 0)
@@ -150,38 +156,24 @@ void chdir(char *dirname) /* chdir 改变当前目录用函数 */
 		iput(inode);
 		return;
 	}
+
+    /*	write back the current directory */
+    fseek ( fd, DATASTART + BLOCKSIZ*cur_path_inode->di_addr [0], SEEK_SET );
+    fwrite ( directory.direct, 1, MaxNumberOfDirOrFileInADirectory * sizeof ( struct direct ), fd );
+    iput ( cur_path_inode );
+
 	/* pack the current directory */
-	for (i = 0; i<directory.size; i++)
-	{
-		for (j = 0; j<DIRNUM; j++)
-			if ( directory.direct[j].d_ino == 0)
-				break;
-		memcpy(&directory.direct[j], &directory.direct[i], DIRSIZ + 2);//pack current file
-        directory.direct[j].d_ino = 0;
-	}
-	/*	write back the current directory */
-	for (i = 0; i<cur_path_inode->di_size / BLOCKSIZ + 1; i++)
-	{
-		bfree(cur_path_inode->di_addr[i]);
-	}
-	for (i = 0; i<directory.size; i += BLOCKSIZ / (DIRSIZ + 2))
-	{
-		block = balloc();
-		cur_path_inode->di_addr[i] = block;
-		fseek(fd, DATASTART + block*BLOCKSIZ, SEEK_SET);
-		fwrite(&directory.direct[0], 1, BLOCKSIZ, fd);
-	}
-	cur_path_inode->di_size = directory.size*(DIRSIZ + 2);
-	iput(cur_path_inode);
+    fseek ( fd, DATASTART + BLOCKSIZ*inode->di_addr [0], SEEK_SET );
+    fread ( directory.direct, 1, MaxNumberOfDirOrFileInADirectory * sizeof ( struct direct ), fd );
+    for ( int i = 0; i < MaxNumberOfDirOrFileInADirectory; i++ )
+    {
+        if ( directory.direct [i].d_ino == 0 ) {
+            directory.size = i;
+            break;
+        }
+    }
+
 	cur_path_inode = inode;
-    directory.size = inode->di_size / (DIRSIZ + 2);
-	/*	read the change dir from disk */
-	j = 0;
-	for (i = 0; i<inode->di_size / BLOCKSIZ + 1; i++)
-	{
-		fseek(fd, DATASTART + inode->di_addr[i] * BLOCKSIZ, SEEK_SET);
-		fread(&directory.direct[0], 1, BLOCKSIZ, fd);
-		j += BLOCKSIZ / (DIRSIZ + 2);
-	}
+    printf ( "change to dir %s success!\n", dirname );
 return;
 }
