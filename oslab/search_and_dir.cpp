@@ -6,7 +6,7 @@
 #include"ballocfre.h"
 #include"access.h"
 #include"iallfre.h"
-unsigned int search_directory_or_file_id_by_name( const char *name) /* namei */
+unsigned int search_directory_or_file_id_by_name(struct dir directory,  const char *name) /* namei */
 
 {
 	int i, notfound = 1;
@@ -15,10 +15,10 @@ unsigned int search_directory_or_file_id_by_name( const char *name) /* namei */
 		if ((!strcmp( directory.direct[i].d_name,name)) && ( directory.direct[i].d_ino != 0))
 			return directory.direct[i].d_ino;   /* find */
 	}
-	return 0;   /* notfind */
+	return NOTFOUND;   /* notfind */
 }
 
-unsigned int put_the_name_to_current_dir( const char *name)	/* iname 搜索函数*/
+unsigned int put_the_name_to_current_dir( struct dir &directory,  const char *name)	/* iname 搜索函数*/
 {
 	int i, notfound = 1;
 	for (i = 0; i < DIRNUM; i++)
@@ -36,7 +36,7 @@ unsigned int put_the_name_to_current_dir( const char *name)	/* iname 搜索函�
 	else
 	{
 		strcpy_s( directory.direct[i].d_name,name);
-        directory.direct[i].d_ino = 1;//？
+        
 		return i;
 	}
 }
@@ -88,8 +88,8 @@ void mkdir( const char *dirname)	/* mkdir 目录创建函数*/
 	struct inode * inode;
 	struct direct direct_buf[MaxNumberOfDirOrFileInADirectory];
 	unsigned int block;
-	dirid = search_directory_or_file_id_by_name (dirname);
-	if (dirid != 0)
+	dirid = search_directory_or_file_id_by_name (directory,  dirname);
+	if (dirid != NOTFOUND)
 	{
 		inode = iget(dirid);
 		if (inode->di_mode & DIR_TYPE)
@@ -99,7 +99,7 @@ void mkdir( const char *dirname)	/* mkdir 目录创建函数*/
 		iput(inode);
 		return;
 	}
-	dirpos = put_the_name_to_current_dir (dirname);//判断满没满（128以后会有问题）
+	dirpos = put_the_name_to_current_dir (directory, dirname);//判断满没满（128以后会有问题）
     if ( dirpos == 0 )
     {
         return;
@@ -143,8 +143,8 @@ void chdir( const char *dirname) /* chdir 改变当前目录用函数 */
 	unsigned short block;
     struct direct direct_buf [32];
 	int i, j, low = 0, high = 0;
-	dirid = search_directory_or_file_id_by_name (dirname);
-	if (dirid == 0)
+	dirid = search_directory_or_file_id_by_name ( directory, dirname);
+	if (dirid == NOTFOUND)
 	{
 		printf("\n%s does not exist!\n", dirname);
 		return;

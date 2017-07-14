@@ -11,8 +11,8 @@ unsigned short open_file(int user_id, const char *filename, unsigned short openm
 	unsigned int dinodeid;
 	struct inode * inode;
 	int i, j;
-	dinodeid = search_directory_or_file_id_by_name (filename);
-	if (dinodeid == 0)    /* nosuchfile */
+	dinodeid = search_directory_or_file_id_by_name ( directory, filename);
+	if (dinodeid == NOTFOUND )    /* nosuchfile */
 	{
 		printf("\nfile does not exist!\n");
 		return OPEN_FAILED;

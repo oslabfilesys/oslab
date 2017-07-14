@@ -13,7 +13,6 @@
 #include"read_and_write.h"
 
 
-
 bool test_command ( string command0, string  command1 )
 {
     return command0.compare ( command1 ) == 0;
@@ -72,11 +71,9 @@ void help() {
     printf("logout :logout current user\n");
     printf("ls [directory]: list the files and directories\n");
     printf("create filename:create the file\n");
-    printf("delete [args] directory/filename:  delete the directory or file\n");
-    printf("open filenam: open the file\n");
-    printf("close filename: close file\n");
+    printf("delete filename:  delete the directory or file\n");
     printf("read filename: read the file\n");
-    printf("write filename: write the file\n");
+    printf("write filename mode content: write the file\n");
     printf("mv source target: move the file\n");
     printf("cp source target: copy the file\n");
     printf ( "quit :quit the system\n" );
@@ -110,8 +107,7 @@ void _create ( deque<string>&  commands ) {
         printf("create filename:create the file\n");
     } else{
         const char * filename = arg.c_str();
-        int handle = create_file (user_id, filename, DEFAULTMODE);
-        close_file ( user_id, handle );
+        create_file (directory ,user_id, filename, DEFAULTMODE);
         
     }
 }
@@ -131,12 +127,10 @@ void _delete( deque<string>&  commands ) {
         printf("delete filename:  delete the  file\n");
     } else {
         const char * filename = arg.c_str();
-        delete_file ( filename );
+        delete_file (directory,  filename );
     }
 
 }
-
-
 
 void read( deque<string>&  commands ) {
     if ( user_id == NOTLOGIN )
@@ -168,6 +162,7 @@ void read( deque<string>&  commands ) {
             read_file ( handle, buffer, length );
             *(buffer + length) = '\0';
             printf ( "%s\n", buffer );
+            close_file ( user_id, handle );
             free ( buffer );
         }
     }
@@ -195,7 +190,7 @@ void write( deque<string>&  commands ) {
     }
 
     if ( test_command ( arg0, "help" ) ) {
-        printf("write mode filename:write file\n");
+        printf("write  filename mode content:write file\n");
         cout << "mode: w, w+" << endl;
     } else{
         const char* filename = arg0.c_str();
@@ -316,8 +311,8 @@ void mv( deque<string>&  commands ) {
         printf("mv source target：move the file\n");
     } else {
         const char* source = arg0.c_str();
-        const char* target = arg1.c_str();
-        printf("try to move the file %s\n", source);
+       string target = arg1;
+        move_file(source, target);
     }
 }
 
@@ -334,9 +329,9 @@ void cp( deque<string>&  commands ) {
     else if (test_command(arg0, "help")){
         printf("cp source target: copy the file\n");
     } else {
-        const char* source = arg0.c_str();
-        const char* target = arg1.c_str();
-        printf("try to copy the file %s\n", source);
+        const char* source = arg0.c_str ( );
+        string target = arg1;
+        copy_file ( source, target );
     }
 }
 
