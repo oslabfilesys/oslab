@@ -6,7 +6,7 @@
 #include"ballocfre.h"
 #include"access.h"
 
-unsigned short open_file(int user_id, char *filename, unsigned short openmode)//用户ID；文件名；打开权限
+unsigned short open_file(int user_id, const char *filename, unsigned short openmode)//用户ID；文件名；打开权限
 {
 	unsigned int dinodeid;
 	struct inode * inode;
@@ -15,14 +15,14 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)//
 	if (dinodeid == 0)    /* nosuchfile */
 	{
 		printf("\nfile does not exist!\n");
-		return 0;
+		return OPEN_FAILED;
 	}
 	inode = iget(dinodeid);
 	if (!access(user_id, inode, openmode))    /* access denied */
 	{
 		printf("\nfile open has not access!\n");
 		iput(inode);
-		return 0;
+		return OPEN_FAILED;
 	}
 	/* alloc the sys-ofile item */
 	for (i = 1; i<SYSOPENFILE; i++)
@@ -31,12 +31,13 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)//
 	{
 		printf("\nsystem open file too much\n");
 		iput(inode);
-		return 0;
+		return OPEN_FAILED;
 	}
+
 	sys_ofile[i].f_inode = inode;
 	sys_ofile[i].f_flag = openmode;
 	sys_ofile[i].f_count = 1;
-	if (openmode & FAPPEND)
+/*	if (openmode & ADD_AB)
 		sys_ofile[i].f_off = inode->di_size;
 	else
 		sys_ofile[i].f_off = 0;
@@ -48,16 +49,29 @@ unsigned short open_file(int user_id, char *filename, unsigned short openmode)//
 		printf("\nuser open file too much!\n");
 		sys_ofile[i].f_count = 0;
 		iput(inode);
-		return 0;
+		return OPEN_FAILED;
 	}
-    users [user_id].u_ofile[j] = 1;
-	/*if APPEND, free the block of the file before */
-	if (!(openmode & FAPPEND))
+    users [user_id].u_ofile[j] = i;
+    //如果读文件的话
+
+    if ( openmode == READ_AB )
+    {
+        sys_ofile [i].f_off = 0;
+    }
+    //如果写文件的话
+	else if (openmode == WRITE_AB)
 	{
+        sys_ofile [i].f_off = 0;
 		for (i = 0; i<inode->di_size / BLOCKSIZ + 1; i++)
 			bfree(inode->di_addr[i]);
+        inode->di_addr [0] = balloc ( );
 		inode->di_size = 0;
 	}
+    //如果在后面添加的话
+    else if ( openmode == ADD_AB )
+    {
+        sys_ofile [i].f_off = inode->di_size;
+    }
 	return j;
 }
 void close_file ( unsigned int user_id, unsigned short cfd )//u_ofile 用户打开文件表

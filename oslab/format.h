@@ -8,3 +8,4 @@
 #include<string.h>
 void format ( );
 void install ( );
+void halt ( );

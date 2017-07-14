@@ -2,35 +2,50 @@
 #include<string.h>
 #include"igetput.h"
 
+
+
 unsigned int access ( unsigned int user_id, struct inode * _inode, unsigned short mode ){
     switch ( mode )
     {
-        case READ:
-            if ( _inode->di_mode & ODIREAD ) return 1;
-            if ( ( _inode->di_mode & ODIREAD ) && ( users [user_id].u_gid == _inode->di_gid ) ) return 1;
-            if ( ( _inode->di_mode & UDIREAD ) && ( users [user_id].u_uid == _inode->di_uid ) ) return 1;
-            return 0;
-
-        case WRITE:
-            if ( _inode->di_mode & ODIWRITE ) return 1;
-            if ( ( _inode->di_mode & GDIWRITE ) && ( users [user_id].u_gid == _inode->di_gid ) ) return 1;
-            if ( ( _inode->di_mode & UDIWRITE ) &&
-                ( users [user_id].u_uid == _inode->di_uid ) ) return 1;
-            return 0;
-
-        case EXICUTE:
-
-            if ( _inode->di_mode & ODIEXICUTE ) return 1;
-            if ( ( _inode->di_mode & GDIEXICUTE ) &&
-                ( users [user_id].u_gid == _inode->di_gid ) ) return 1;
-            if ( ( _inode->di_mode & UDIEXICUTE ) &&
-                ( users [user_id].u_uid == _inode->di_uid ) ) return 1;
-            return 0;
+        case READ_AB:
+            if (_inode->di_uid == users[user_id].u_uid  ) return 1;
+            else if ( _inode->other_mode & READ_AB )
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+            break;
+        case WRITE_AB:
+        case ADD_AB:
+            if ( _inode->di_uid == users [user_id].u_uid ) return 1;
+            else if ( _inode->other_mode & WriteAble )
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+            break;
+        case DEFAULTMODE:
+            if ( _inode->di_uid == users [user_id].u_uid ) return 1;
+            else if ( _inode->other_mode & DEFAULTMODE )
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+            break;
         default:
             return 0;
     }
 }
-int login ( unsigned short uid, char * passwd )
+int login_user ( unsigned short uid,const char * passwd )
 {
     int i, j;
     for ( i = 0; i<PWDNUM; i++ )
@@ -47,9 +62,11 @@ int login ( unsigned short uid, char * passwd )
             }
             else
             {
+
                 users [j].u_uid = uid;
-                users [i].u_gid = _pwd [i].p_gid;
+                users [j].u_gid = _pwd [i].p_gid;
                 users [j].u_default_mode = DEFAULTMODE;
+                user_id = j;
             }
             break;
         }
@@ -63,7 +80,7 @@ int login ( unsigned short uid, char * passwd )
     else
         return 1;
 }
-int logout ( unsigned short uid )
+int logout_user ( unsigned short uid )
 {
     int i, j, sys_no;
     struct inode *inode;
@@ -86,9 +103,32 @@ int logout ( unsigned short uid )
             users [i].u_ofile [j] = SYSOPENFILE + 1;
         }
     }
+    cout << "logout ok!" << endl;
     return 1;
 }
-
+int reg_user ( unsigned short uid, const char * passwd )
+{
+    int i;
+    for (  i = 0; i < PWDNUM; i++ )
+    {
+        if ( _pwd[i].p_uid == uid )
+        {
+            printf ( "user have already exist!\n" );
+            return 0;
+        }
+        else if ( _pwd [i].p_uid == 0)
+        {
+            break;
+        }
+    }
+    if ( i == PWDNUM ) {
+        printf ( "full, cannot reg,sorry!\n" );
+        return 0;
+    }
 
-
+    _pwd [i].p_uid = uid;
+    strcpy_s ( _pwd [i].password, passwd );
+    cout << "reg success,now you can login!"<<endl;
+    return 1;
+}
 

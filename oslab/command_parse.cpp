@@ -6,15 +6,20 @@
 #include <cstdio>
 #include <cstdlib>
 #include "command_parse.h"
-#include "user_reg_and_login.h"
+#include"search_and_dir.h"
+#include"access.h"
+#include"creat_and_delete.h"
+#include"open_and_close.h"
+#include"read_and_write.h"
 
-User current_user;
 
-bool test_command(const char* command0, const char *command1){
-    return strcmp(command0, command1)==0;
+
+bool test_command ( string command0, string  command1 )
+{
+    return command0.compare ( command1 ) == 0;
 }
 
-int parse_first_command(char* first_command){
+int parse_first_command(string first_command){
     if (test_command(first_command, "help"))
         return HELP;
     else if (test_command(first_command, "ls"))
@@ -43,6 +48,14 @@ int parse_first_command(char* first_command){
         return MV;
     else if (test_command(first_command, "cp"))
         return CP;
+    else if ( test_command ( first_command, "quit" ) )
+        return QUIT;
+    else if ( test_command ( first_command, "format" ) )
+        return FORMAT;
+    else if ( test_command ( first_command, "mkdir" ) )
+        return MKDIR;
+    else if ( test_command ( first_command, "cd" ) )
+        return CHDIR;
     else
         return UNKNOWN_COMMAND;
 }
@@ -66,174 +79,295 @@ void help() {
     printf("write filename: write the file\n");
     printf("mv source target: move the file\n");
     printf("cp source target: copy the file\n");
+    printf ( "quit :quit the system\n" );
+    printf ( "format :format the system\n" );
     printf("for details can input command+help\n");
 }
 
-void ls(char * next_command) {
-    char *target_directory = get_one_arg(next_command);
-    if (target_directory == nullptr){
-        printf("list current directory\n");
+void ls(deque<string>&  commands) {
+    string target_directory;
+    if(commands.size ( )>0 )
+    target_directory = commands[0];
+    if (target_directory.length() == 0){
+        _dir();
     } else{
-        printf("list directory %s 's files\n", target_directory);
+        cout<<"list directory "<<target_directory <<" files\n";
     }
 }
 
-void create(char * next_command) {
-    char *arg = get_one_arg(next_command);
-    if (arg == nullptr){
+void _create ( deque<string>&  commands ) {
+    if ( user_id == NOTLOGIN )
+    {
+        cout << "please login!" << endl;
+        return;
+    }
+    string arg;
+    if ( commands.size ( )>0 )
+        arg = commands [0];
+    if (arg.length ( ) == 0){
         printf("there's something wrong,please check it or input create help to get help\n");
     } else if (test_command(arg, "help")){
         printf("create filename:create the file\n");
     } else{
-        char* target_file = arg;
-        printf("try to create %s file\n", target_file);
-
+        const char * filename = arg.c_str();
+        int handle = create_file (user_id, filename, DEFAULTMODE);
+        close_file ( user_id, handle );
+        
     }
 }
 
-void _delete(char * next_command) {
-    char *arg0 = strtok_s(nullptr, " ", &next_command);
-    char *arg1 = strtok_s(nullptr, " ", &next_command);
-    if (arg0 == nullptr || (test_command(arg0, "all") && arg1 == nullptr))
+void _delete( deque<string>&  commands ) {
+    if ( user_id == NOTLOGIN )
+    {
+        cout << "please login!" << endl;
+        return;
+    }
+    string arg;
+    if ( commands.size ( )>0 )
+        arg = commands [0];
+    if ( arg.length ( ) == 0 || (test_command( arg, "all")))
         printf("there's something wrong,please check it or input delete help to get help\n");
-    else if (test_command(arg0, "help")){
-        printf("delete [args] directory/filename:  delete the directory or file\n");
-        printf("arg：all delete all files in the directory and the directory");
-    } else if (test_command(arg0, "all")){
-        char * target_file_or_directory = arg1;
-        printf("delete:%s \n", target_file_or_directory);
+    else if (test_command( arg, "help")){
+        printf("delete filename:  delete the  file\n");
+    } else {
+        const char * filename = arg.c_str();
+        delete_file ( filename );
     }
 
 }
 
-void open(char * next_command) {
-    char *arg = get_one_arg(next_command);
-    if (arg == nullptr){
-        printf("there's something wrong,please check it or input open help to get help\n");
-    } else if (test_command(arg, "help")){
-        printf("open filename:open the file\n");
-    } else{
-        char* target_file = arg;
-        printf("try to open the %s file\n", target_file);
 
+
+void read( deque<string>&  commands ) {
+    if ( user_id == NOTLOGIN )
+    {
+        cout << "please login!" << endl;
+        return;
     }
-}
-
-void close(char * next_command) {
-    char *arg = get_one_arg(next_command);
-    if (arg == nullptr){
-        printf("there's something wrong,please check it or input close help to get help\n");
-    } else if (test_command(arg, "help")){
-        printf("close filename:close the file\n");
-    } else{
-        char* target_file = arg;
-        printf("try to close %s file\n", target_file);
-
+    string arg0;
+    if ( commands.size ( ) >0 )
+    {
+        arg0 = commands [0];
     }
-}
 
-void read(char * next_command) {
-    char *arg = get_one_arg(next_command);
-    if (arg == nullptr){
+    if ( arg0.length ( ) == 0){
         printf("there's something wrong,please check it or input read help to get help\n");
-    } else if (test_command(arg, "help")){
+    } else if (test_command( arg0, "help")){
         printf("read filename:read the file\n");
     } else{
-        char* target_file = arg;
-        printf("try to read the %s file\n", target_file);
-
+        const char* filename = arg0.c_str();
+        int handle;
+        handle = open_file ( user_id, filename, READ_AB );
+        if ( handle == OPEN_FAILED ) { 
+            cout << "please check your command\n"; 
+            return; }
+        if ( handle != OPEN_FAILED ) {
+            char *buffer;
+            int length = sys_ofile [users [user_id].u_ofile [handle]].f_inode->di_size;
+            buffer = ( char* ) malloc ( length + 1);
+            read_file ( handle, buffer, length );
+            *(buffer + length) = '\0';
+            printf ( "%s\n", buffer );
+            free ( buffer );
+        }
     }
 }
 
-void write(char * next_command) {
-    char *arg = get_one_arg(next_command);
-    if (arg == nullptr){
-        printf("there's something wrong,please check it or input write help to get help\n");
-    } else if (test_command(arg, "help")){
-        printf("write filename:write file\n");
+void write( deque<string>&  commands ) {
+    if ( user_id == NOTLOGIN )
+    {
+        cout << "please login!" << endl;
+        return;
+    }
+    string arg0;
+    string arg1;
+    string arg2;
+    if ( commands.size ( ) >2 )
+    {
+        arg0 = commands [0];
+        arg1 = commands [1];
+        arg2 = commands [2];
+    }
+    else
+    {
+        printf ( "there's something wrong,please check it or input write help to get help\n" );
+        return;
+    }
+
+    if ( test_command ( arg0, "help" ) ) {
+        printf("write mode filename:write file\n");
+        cout << "mode: w, w+" << endl;
     } else{
-        char* target_file = arg;
-        printf("try to write the %s file\n", target_file);
+        const char* filename = arg0.c_str();
+        const char* mode_arg = arg1.c_str();
+        int handle;
+        if ( strcmp ( mode_arg, "w" ) == 0 )
+        {
+            handle = open_file ( user_id, filename, WRITE_AB );
+        }
+        else if ( strcmp ( mode_arg, "w+" ) == 0 )
+        {
+            handle = open_file ( user_id, filename, ADD_AB );
+        }
+        else { cout << "please check your command\n"; return; }
+        if ( handle != OPEN_FAILED ) {
+            char *data;
+            int len = arg2.length ( );
+            data = ( char * ) malloc ( ( len ) * sizeof ( char ) );
+            arg2.copy ( data, len, 0 );
+            write_file ( handle, data, len );
+            free ( data );
+            close_file ( user_id, handle );
+        }
 
     }
 }
 
-void login(char * next_command) {
-    char *arg0 = strtok_s(nullptr, " ", &next_command);
-    char *arg1 = strtok_s(nullptr, " ", &next_command);
-    if (arg0 == nullptr  || (!test_command(arg0, "help") && arg1 == nullptr ))
+void login( deque<string>&  commands ) {
+    string arg0;
+    string arg1;
+    if ( commands.size() >1 )
+    {
+        arg0 = commands [0];
+        arg1 = commands [1];
+    }
+    if (arg0.length ( ) ==0 || (!test_command(arg0, "help") && arg1.length ( ) == 0 ))
         printf("there's something wrong,please check it or input login help to get help\n");
     else if (test_command(arg0, "help")){
         printf("login username password：login the user\n");
     } else {
-		User *user;
-        char* username = arg0;
-        char* password = arg1;
-        user = login_user(username, password);
-		if (user == nullptr)
+		
+        int login_user_id = atoi(arg0.c_str());
+        const char* password = arg1.c_str();
+		if (!login_user( login_user_id, password))
 		{
 			printf_s("login failed, please retry.\n");
 		}
 		else
 		{
-			strcpy_s(current_user.username, user->username);
-			printf_s("login ok!\nwelcome %s!\n", current_user.username);
-			free(user);
+			
+			printf_s("login ok!\nwelcome %d!\n", users[user_id].u_uid);
 		}
     }
 }
 
-void _register(char * next_command) {
-    char* arg0 = get_one_arg(next_command);
-    if (arg0 != nullptr && test_command(arg0, "help")){
+void _register( deque<string>&  commands ) {
+    string arg;
+    if ( commands.size ( )>0 )
+        arg = commands [0];
+
+    if ( arg.length ( ) != 0 && test_command( arg, "help")){
         printf("register：register the user\n");
     } else{
-        _register_user();
+        int reg_user_id;
+        char password [20];
+        char password1 [20];
+        cout << "please input id" << endl;
+        cin >> reg_user_id;
+        cout << "please input password" << endl;
+        cin >> password;
+        cout << "please ensure password" << endl;
+        cin >> password1;
+        if ( strcmp(password, password1)!=0 )
+        {
+            cout << "two password not same" << endl;
+            return;
+        }
+        reg_user ( reg_user_id, password );
     }
 }
 
-void logout(char * next_command) {
-    char* arg0 = get_one_arg(next_command);
-    if (arg0!= nullptr && test_command(arg0, "help")){
-        printf("logout：logout current user\n");
+
+void logout( deque<string>&  commands ) {
+    if ( user_id == NOTLOGIN )
+    {
+        cout << "please login!" << endl;
+        return;
+    }
+    string arg;
+    if ( commands.size ( )>0 )
+        arg = commands [0];
+
+    if ( arg.length ( ) != 0 && test_command ( arg, "help" ) ) {
+        printf ( "register：register the user\n" );
     } else{
-		if (strcmp(current_user.username, "") == 0)
-		{
-			printf_s("no user is login!\n");
-		}
-		else
-		{
-			strcpy_s(current_user.username, "");
-			printf_s("logout ok!\n");
-		}
+        logout_user ( users[user_id].u_uid);
+        user_id = NOTLOGIN;
 
     }
 }
 
-void mv(char * next_command) {
-    char *arg0 = strtok_s(nullptr, " ", &next_command);
-    char *arg1 = strtok_s(nullptr, " ", &next_command);
-    if (arg0 == nullptr  || (!test_command(arg0, "help") && arg1 == nullptr ))
+void rm ( deque<string>& commands )
+{
+}
+
+
+void mv( deque<string>&  commands ) {
+    string arg0;
+    string arg1;
+    if ( commands.size ( ) >1 )
+    {
+        arg0 = commands [0];
+        arg1 = commands [1];
+    }
+    if ( arg0.length ( ) == 0 || ( !test_command ( arg0, "help" ) && arg1.length ( ) == 0 ) )
         printf("there's something wrong,please check it or input mv help to get help\n");
     else if (test_command(arg0, "help")){
         printf("mv source target：move the file\n");
     } else {
-        char* source = arg0;
-        char* target = arg1;
+        const char* source = arg0.c_str();
+        const char* target = arg1.c_str();
         printf("try to move the file %s\n", source);
     }
 }
 
-void cp(char * next_command) {
-    char *arg0 = strtok_s(nullptr, " ", &next_command);
-    char *arg1 = strtok_s(nullptr, " ", &next_command);
-    if (arg0 == nullptr  || (!test_command(arg0, "help") && arg1 == nullptr ))
+void cp( deque<string>&  commands ) {
+    string arg0;
+    string arg1;
+    if ( commands.size ( ) >1 )
+    {
+        arg0 = commands [0];
+        arg1 = commands [1];
+    }
+    if ( arg0.length ( ) == 0 || ( !test_command ( arg0, "help" ) && arg1.length ( ) == 0 ) )
         printf("there's something wrong,please check it or input cp help to get help\n");
     else if (test_command(arg0, "help")){
         printf("cp source target: copy the file\n");
     } else {
-        char* source = arg0;
-        char* target = arg1;
+        const char* source = arg0.c_str();
+        const char* target = arg1.c_str();
         printf("try to copy the file %s\n", source);
+    }
+}
+
+void _mkdir ( deque<string>&  commands ) {
+    if ( user_id == NOTLOGIN )
+    {
+        cout << "please login!" << endl;
+        return;
+    }
+    string arg;
+    if ( commands.size()>0 )
+        arg = commands [0];
+
+    if ( arg.length ( ) != 0 && test_command ( arg, "help" ) ) {
+        printf ( "mkdir dirname：make a new dir\n" );
+    }
+    else {
+        mkdir( arg.c_str());
+
+    }
+}
+
+void _chdir ( deque<string>&  commands ) {
+    string arg;
+    if ( commands.size ( )>0 )
+        arg = commands [0];
+
+    if ( arg.length() != 0 && test_command ( arg, "help" ) ) {
+        printf ( "chdir dirname：change to target directory\n" );
+    }
+    else {
+        chdir ( arg.c_str() );
     }
 }

@@ -2,6 +2,7 @@
 #include <cstring>
 #include"FILESYS.h"
 
+#include"command_parse.h"
 #include"format.h"
 #include"access.h"
 #include"ballocfre.h"
@@ -11,6 +12,7 @@
 #include"open_and_close.h"
 #include"read_and_write.h"
 #include"search_and_dir.h"
+#include <conio.h>
 
 
 
@@ -26,127 +28,121 @@ FILE * fd;
 struct inode * cur_path_inode;
 int user_id;
 
-//8用户同时使用，每个用户可以打开20个文件
+
+void split ( const string& src, const string& separator, deque<string>& dest )
+{
+    string str = src;
+    string substring;
+    string::size_type start = 0, index;
+
+    do
+    {
+        index = str.find_first_of ( separator, start );
+        if ( index != string::npos )
+        {
+            substring = str.substr ( start, index - start );
+            dest.push_back ( substring );
+            start = str.find_first_not_of ( separator, index );
+            if ( start == string::npos ) return;
+        }
+    } while ( index != string::npos );
+
+    //the last token
+    substring = str.substr ( start );
+    dest.push_back ( substring );
+}
+
+
 int main() {
-    unsigned short ab_fd1, ab_fd2, ab_fd3, ab_fd4;
-    unsigned short bhy_fd1;
-    char * buf;
-    int ccc = sizeof ( unsigned int );
-    printf ( "\nDo you want to format the disk \n" );
-    if ( getchar( ) == 'y' )
+    user_id = NOTLOGIN;
+    if ( fopen_s ( &fd, "filesystem", "rb+" ) != 0 )
+    {
+        printf ( "\nfilesystem have not format,please wait!\n" );
         format ( );
+    } 
+
 
 
     install ( );
-    printf ( "\nCommand : dir  \n" );
-    \
 
-        _dir ( );
 
-    login ( 2118, "abcd" );
-    user_id = 0;
-    mkdir ( "a2118" );
-    chdir ( "a2118" );
-    ab_fd1 = create_file ( user_id, "ab_file0.c", 01777 );
-    buf = ( char * ) malloc ( BLOCKSIZ * 6 + 5 );
-    _dir ( );
-    write_file ( ab_fd1, buf, BLOCKSIZ * 6 + 5 );
-    close_file ( user_id, ab_fd1 );
-    _dir ( );
-    delete_file ( "ab_file0.c" );
-    _dir ( );
-    free ( buf );
-
-    mkdir ( "subdir" );
-    chdir ( "subdir" );
-    ab_fd2 = create_file ( user_id, "file1.c", 01777 );
-    buf = ( char * ) malloc ( BLOCKSIZ * 4 + 20 );
-    write_file ( ab_fd2, buf, BLOCKSIZ * 4 + 20 );
-    close_file ( user_id, ab_fd2 );
-    free ( buf );
-
-    chdir ( ".." );
-    ab_fd3 = create_file ( user_id, "_file2.c", 01777 );
-    buf = ( char * ) malloc ( BLOCKSIZ * 10 + 255 );
-    write_file ( ab_fd3, buf, BLOCKSIZ * 3 + 255 );
-    close_file ( user_id, ab_fd3 );
-    free ( buf );
-
-    delete_file( "ab_file0.c" );
-    ab_fd4 = create_file ( user_id, "ab_file3.c", 01777 );
-    buf = ( char * ) malloc ( BLOCKSIZ * 8 + 300 );
-    write_file ( ab_fd4, buf, BLOCKSIZ * 8 + 300 );
-    close_file ( user_id, ab_fd4 );
-    free ( buf );
-
-    ab_fd3 = open_file ( user_id, "ab_file2.c", FAPPEND );
-    buf = ( char * ) malloc ( BLOCKSIZ * 3 + 100 );
-    write_file ( ab_fd3, buf, BLOCKSIZ * 3 + 100 );
-    close_file (user_id,  ab_fd3 );
-    free ( buf );
-
-    _dir ( );
-    chdir ( ".." );
-    logout ( user_id);
-//    halt ( );
-
-    /*
+    string command;
+    deque<string> commands;
 	printf("--------------welcome to xxx file system-----------------\n");
     printf("input help or command  help can get help\n");
     while (true){
-        char command[100];
-        printf("%s>", current_user.username);
-        gets_s(command);
-        char* first_command, *next_command;
-        first_command = strtok_s(command, " ", &next_command);
-		if (first_command != nullptr)
+        command.empty ( );
+        commands.clear ( );
+        printf(">");
+
+        getline ( cin, command );
+        split ( command, " ", commands );
+        string first_command ;
+        if ( commands.size ( ) != 0 )
+        {
+            first_command = commands [0];
+            commands.pop_front ( );
+        }
+
+		if (first_command.length() != 0)
 		{
-			switch (parse_first_command(first_command)) {
+			switch (parse_first_command( first_command )) {
 			case HELP:
 				help();
 				break;
 			case LS:
-				ls(next_command);
+				ls( commands );
 				break;
 			case CREATE:
-				create(next_command);
+				_create( commands );
 				break;
 			case DELETE:
-				_delete(next_command);
-				break;
-			case OPEN:
-				open(next_command);
-				break;
-			case CLOSE:
-				close(next_command);
+				_delete( commands );
 				break;
 			case READ:
-				read(next_command);
+				read( commands );
 				break;
 			case WRITE:
-				write(next_command);
+				write( commands );
 				break;
 			case LOGIN:
-				login(next_command);
+				login( commands );
 				break;
 			case REGISTER:
-				_register(next_command);
+				_register( commands );
 				break;
 			case LOGOUT:
-				logout(next_command);
+				logout( commands );
 				break;
 			case MV:
-				mv(next_command);
+				mv( commands );
 				break;
 			case CP:
-				cp(next_command);
+				cp( commands );
 				break;
+            case QUIT:
+                halt ( );
+                break;
+            case FORMAT:
+                printf ( "\nDo you want to format the disk \n" );
+                if ( _getch ( ) == 'y' ){
+                    format ( );
+                    install ( );
+                }
+                break;
+            case MKDIR:
+                _mkdir ( commands );
+                break;
+            case CHDIR:
+                _chdir ( commands );
+                break;
 			default:
 				printf("unknown command,please retry or input help to get help\n");
 			}
 		}
 
     }
-    */
+    
+    system ("pause");
     return 0;
 }

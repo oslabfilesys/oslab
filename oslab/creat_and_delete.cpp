@@ -8,7 +8,7 @@
 #include"access.h"
 
 //创建完成就打开了
-int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户ID；文件名；存取权限
+int create_file(unsigned int user_id, const char *filename,unsigned short mode)//用户ID；文件名；存取权限
 {
 	unsigned int di_ith, di_ino;
 	struct inode * inode;
@@ -33,7 +33,7 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户I
 				{
 					bfree(inode->di_addr[i]);
 				}
-				/* to do: add code here to update the pointer of the sys_file */
+
 				for (i = 0; i < SYSOPENFILE; i++)
 					if (sys_ofile[i].f_inode == inode)
 					{
@@ -43,7 +43,7 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户I
 					if (users[user_id].u_ofile[i] == SYSOPENFILE + 1)
 					{
 						users[user_id].u_uid = inode->di_uid;
-						users[user_id].u_gid = inode->di_gid;
+					
 						for (j = 0; j < SYSOPENFILE; j++)
 							if (sys_ofile[j].f_count == 0)
 							{
@@ -64,11 +64,16 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户I
         directory.size++;
         directory.direct[di_ith].d_ino = inode->i_ino;
 
-		inode->di_mode = users [user_id].u_default_mode | DIFILE;
-		inode->di_uid = users [user_id].u_uid;
-		inode->di_gid = users [user_id].u_gid;
+        inode->di_mode = FILE_TYPE;//默认自己权限
+        inode->other_mode = READ_AB;// 他人默认可读
+        inode->di_uid = users [user_id].u_uid;
 		inode->di_size = 0;//初始文件大小
 		inode->di_number = 1;//关联文件数
+        int new_block = balloc ( );
+        if ( new_block != DISKFULL )
+        {
+            inode->di_addr [0] = new_block;
+        }
 		for (i = 0; i < SYSOPENFILE; i++)//系统打开文件数
 			if (sys_ofile[i].f_count == 0)
 			{
@@ -86,14 +91,15 @@ int create_file(unsigned int user_id, char *filename,unsigned short mode)//用户I
         }
         users [user_id].u_ofile[j] = i;
 		sys_ofile[i].f_flag = mode;
-		sys_ofile[i].f_count = 0;
+		sys_ofile[i].f_count ++;
 		sys_ofile[i].f_off = 0;
 		sys_ofile[i].f_inode = inode;
+        cout << "create ok!" << endl;
 		return j;
 	}
 }
 
-void delete_file ( char * filename )//删除文件
+void delete_file ( const char * filename )//删除文件
 {
     unsigned int dinodeid, i;
     struct inode *inode;
@@ -106,6 +112,7 @@ void delete_file ( char * filename )//删除文件
         return;
     }
     inode->di_number--;
+
     for ( i = 0; i < directory.size; i++ )
     {
         if ( directory.direct [i].d_ino == dinodeid )
