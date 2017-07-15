@@ -57,7 +57,7 @@ int main() {
     user_id = NOTLOGIN;
     if ( fopen_s ( &fd, "filesystem", "rb+" ) != 0 )
     {
-        printf ( "\nfilesystem have not format,please wait!\n" );
+        printf ( "\nfilesystem have not format,please wait.....\n\n" );
         format ( );
     } 
 
@@ -67,7 +67,7 @@ int main() {
 
     string command;
     deque<string> commands;
-	printf("--------------welcome to xxx file system-----------------\n");
+	printf("--------------welcome to file system-----------------\n");
     printf("input help or command  help can get help\n");
     while (true){
         command.empty ( );
@@ -121,13 +121,9 @@ int main() {
 				break;
             case QUIT:
                 halt ( );
+                exit ( 0 );
                 break;
             case FORMAT:
-                printf ( "\nDo you want to format the disk \n" );
-                if ( _getch ( ) == 'y' ){
-                    format ( );
-                    install ( );
-                }
                 break;
             case MKDIR:
                 _mkdir ( commands );

@@ -4,6 +4,10 @@
 
 void format()
 {
+    if ( fd  != nullptr )
+    {
+        fclose ( fd );
+    }
 	struct inode * inode;
 	struct direct dir_buf[MaxNumberOfDirOrFileInADirectory];
 //	struct pwd passwd[BLOCKSIZ / (PWDSIZ + 4)];
@@ -246,5 +250,5 @@ void halt ( ) {
     /*5. say GOOD BYE to all the user */
     printf ( "\nGood Bye. See You Next Time. Please turn off the switch\n" );
 
-    exit ( 0 );
+
 }

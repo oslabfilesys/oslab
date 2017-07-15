@@ -21,7 +21,7 @@ struct inode * ialloc()
         {
             file_system.s_inode [i] = block_buf [i];
         }
-        file_system.s_rinode = block_buf [51];
+        file_system.s_rinode = block_buf [50];
 
 	}
     if ( file_system.surplus_nunmber_of_inode == 0 ) {
@@ -48,7 +48,7 @@ void ifree(unsigned dinodeid)	 /* ifree */
     file_system.surplus_nunmber_of_inode++;
 	if ( file_system.surplus_point_to_inode != 0)    /* notfull */
 	{
-        file_system.s_inode[file_system.surplus_point_to_inode--] = dinodeid;
+        file_system.s_inode[--file_system.surplus_point_to_inode] = dinodeid;
 	}
 	else /* full */
 	{
@@ -57,6 +57,7 @@ void ifree(unsigned dinodeid)	 /* ifree */
         {
             buff [i] = file_system.s_inode [i];
         }
+
         buff [50] = file_system.s_rinode;
         file_system.s_rinode = file_system.s_inode [0];//将新的一组保存到buff[0】
         fseek ( fd, DiskIndexNodeStart + DiskIndexNodeSize*file_system.s_rinode, SEEK_SET );
