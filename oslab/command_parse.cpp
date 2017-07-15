@@ -11,6 +11,7 @@
 #include"creat_and_delete.h"
 #include"open_and_close.h"
 #include"read_and_write.h"
+#include"format.h"
 
 
 bool test_command ( string command0, string  command1 )
@@ -66,18 +67,18 @@ char* get_one_arg(char * next_command){
 
 void help() {
     printf("welcome to the file system,the command are here:\n");
-    printf("login username password:login user\n");
-    printf("register :register a new user\n");
-    printf("logout :logout current user\n");
-    printf("ls [directory]: list the files and directories\n");
-    printf("create filename:create the file\n");
-    printf("delete filename:  delete the directory or file\n");
-    printf("read filename: read the file\n");
-    printf("write filename mode content: write the file\n");
-    printf("mv source target: move the file\n");
-    printf("cp source target: copy the file\n");
-    printf ( "quit :quit the system\n" );
-    printf ( "format :format the system\n" );
+    printf("login username password             :login user\n");
+    printf("register                            :register a new user\n");
+    printf("logout                              :logout current user\n");
+    printf("ls                                  :list the files and directories\n");
+    printf("create filename                     :create the file\n");
+    printf("delete filename                     :delete the file\n");
+    printf("read filename                       :read the file\n");
+    printf("cd directory                        :goto  the directory\n" );
+    printf("write filename mode                 :write the file\n");
+    printf("mv source target                    :move the file\n");
+    printf("cp source target                    :copy the file\n");
+    printf("quit                                :quit the system\n" );
     printf("for details can input command+help\n");
 }
 
@@ -176,12 +177,10 @@ void write( deque<string>&  commands ) {
     }
     string arg0;
     string arg1;
-    string arg2;
-    if ( commands.size ( ) >2 )
+    if ( commands.size ( ) >1 )
     {
         arg0 = commands [0];
         arg1 = commands [1];
-        arg2 = commands [2];
     }
     else
     {
@@ -190,7 +189,7 @@ void write( deque<string>&  commands ) {
     }
 
     if ( test_command ( arg0, "help" ) ) {
-        printf("write  filename mode content:write file\n");
+        printf("write  filename mode:write file\n");
         cout << "mode: w, w+" << endl;
     } else{
         const char* filename = arg0.c_str();
@@ -206,10 +205,12 @@ void write( deque<string>&  commands ) {
         }
         else { cout << "please check your command\n"; return; }
         if ( handle != OPEN_FAILED ) {
+            string data_string;
+            getline ( cin, data_string );
             char *data;
-            int len = arg2.length ( );
+            int len = data_string.length ( );
             data = ( char * ) malloc ( ( len ) * sizeof ( char ) );
-            arg2.copy ( data, len, 0 );
+            data_string.copy ( data, len, 0 );
             write_file ( handle, data, len );
             free ( data );
             close_file ( user_id, handle );
@@ -288,7 +289,8 @@ void logout( deque<string>&  commands ) {
     } else{
         logout_user ( users[user_id].u_uid);
         user_id = NOTLOGIN;
-
+        halt ( );
+        install ( );
     }
 }
 
